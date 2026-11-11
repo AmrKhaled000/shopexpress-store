@@ -1,0 +1,156 @@
+<%
+    const values = {
+        title: form ? form.title : (product ? product.title : ''),
+        price: form ? form.price : (product ? product.price : ''),
+        description: form ? form.description : (product ? product.description : ''),
+        sizes: form ? (form.sizes || '') : (product && Array.isArray(product.sizes) ? product.sizes.join(', ') : '')
+    };
+    const currentImages = product && Array.isArray(product.images) ? product.images : [];
+    const previewImage = currentImages[0] || '/images/placeholder.svg';
+%>
+<%- include('../includes/head', { bodyClass: 'page-admin', pageStyles: ['/css/shop.css', '/css/admin.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <%- include('../includes/admin-nav.ejs') %>
+
+    <header class="page-intro page-intro--admin page-intro--form">
+        <div class="page-intro__main">
+            <a class="text-link page-intro__back" href="/admin/products"><%- icon('arrow-left') %> Back to catalog</a>
+            <p class="eyebrow"><%= editing ? 'Refine an object' : 'A new object' %></p>
+            <h1><%= editing ? 'Edit product' : 'Add product' %></h1>
+            <p class="page-intro__lede"><%= editing ? 'Update the details below. Changes go live in the storefront as soon as you save.' : 'Give the object a name, a price, and a reason to be on the shelf. The preview shows exactly what customers will see.' %></p>
+        </div>
+    </header>
+
+    <form class="admin-form" action="/admin/<%= editing ? 'edit-product' : 'add-product' %>?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data" data-validate data-product-form novalidate>
+        <div class="admin-form__fields">
+            <section class="form-section" aria-labelledby="details-heading">
+                <div class="form-section__header">
+                    <span class="form-section__number" aria-hidden="true">01</span>
+                    <div>
+                        <h2 id="details-heading">Product details</h2>
+                        <p>The basics shown across the storefront.</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-field form-field--wide <%= validationErrors.title ? 'is-invalid' : '' %>">
+                        <label for="title">Product title</label>
+                        <input type="text" name="title" id="title" placeholder="e.g. Arc Task Lamp" value="<%= values.title %>" data-min-length="3" data-preview-title required <%= validationErrors.title ? 'aria-invalid="true" aria-describedby="title-error"' : '' %>>
+                        <p class="field-error" id="title-error"><%= validationErrors.title || 'Title must be at least 3 characters.' %></p>
+                        <p class="form-hint">A short, clear name reads best on a card.</p>
+                    </div>
+
+                    <div class="form-field <%= validationErrors.price ? 'is-invalid' : '' %>">
+                        <label for="price">Price (USD)</label>
+                        <div class="input-wrap input-wrap--prefix">
+                            <span class="input-wrap__prefix" aria-hidden="true">$</span>
+                            <input type="number" name="price" id="price" step="0.01" min="0.01" placeholder="0.00" value="<%= values.price %>" data-preview-price required <%= validationErrors.price ? 'aria-invalid="true" aria-describedby="price-error"' : '' %>>
+                        </div>
+                        <p class="field-error" id="price-error"><%= validationErrors.price || 'Price must be a positive number.' %></p>
+                    </div>
+
+                    <div class="form-field form-field--wide">
+                        <label for="sizes">Sizes <span class="form-label-inline">(optional — apparel only)</span></label>
+                        <input type="text" name="sizes" id="sizes" placeholder="e.g. S, M, L" value="<%= values.sizes %>" autocomplete="off" maxlength="120">
+                        <p class="form-hint">Comma-separated. When sizes are set, customers must pick one before the product can be added to the cart. Leave empty for everything else.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section" aria-labelledby="media-heading">
+                <div class="form-section__header">
+                    <span class="form-section__number" aria-hidden="true">02</span>
+                    <div>
+                        <h2 id="media-heading">Product images</h2>
+                        <p>Upload one or more. The first image becomes the storefront thumbnail.</p>
+                    </div>
+                </div>
+
+                <% if (currentImages.length > 0) { %>
+                    <div class="upload-grid" role="group" aria-label="Images currently on the product">
+                        <% currentImages.forEach(function (url, index) { %>
+                            <label class="upload-grid__item">
+                                <img src="<%= url %>" alt="Product image <%= index + 1 %><%= index === 0 ? ', storefront thumbnail' : '' %>" width="96" height="120" data-product-image>
+                                <span class="upload-grid__meta">
+                                    <% if (index === 0) { %><span class="badge badge--accent">Thumbnail</span><% } %>
+                                    <span class="upload-grid__remove"><input type="checkbox" name="removeImages" value="<%= url %>"> Remove</span>
+                                </span>
+                            </label>
+                        <% }); %>
+                    </div>
+                <% } %>
+
+                <div class="form-field <%= validationErrors.images ? 'is-invalid' : '' %>">
+                    <label for="images"><%= editing ? 'Add more images' : 'Images' %></label>
+                    <input type="file" name="images" id="images" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" multiple data-preview-files <%= validationErrors.images ? 'aria-invalid="true" aria-describedby="images-error"' : '' %>>
+                    <p class="field-error" id="images-error"><%= validationErrors.images || 'Add at least one image.' %></p>
+                    <p class="form-hint">JPEG, PNG, WebP, AVIF or GIF · up to 5 MB per image · up to 8 images per product. New uploads appear after the current ones.</p>
+                </div>
+            </section>
+
+            <section class="form-section" aria-labelledby="description-heading">
+                <div class="form-section__header">
+                    <span class="form-section__number" aria-hidden="true">03</span>
+                    <div>
+                        <h2 id="description-heading">Description</h2>
+                        <p>What it is, why it belongs, and how it feels to use.</p>
+                    </div>
+                </div>
+
+                <div class="form-field <%= validationErrors.description ? 'is-invalid' : '' %>">
+                    <div class="form-label-row">
+                        <label for="description">Product description</label>
+                        <span class="form-counter" data-description-counter>0 / 2,000</span>
+                    </div>
+                    <textarea name="description" id="description" rows="7" placeholder="Describe the object in a few honest sentences…" data-min-length="10" data-preview-description data-description-input required <%= validationErrors.description ? 'aria-invalid="true" aria-describedby="description-error"' : '' %>><%= values.description %></textarea>
+                    <p class="field-error" id="description-error"><%= validationErrors.description || 'Description must be at least 10 characters.' %></p>
+                </div>
+            </section>
+
+            <% if (editing) { %>
+                <input type="hidden" value="<%= product._id %>" name="productId">
+            <% } %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="form-actions">
+                <button class="btn btn--lg" type="submit">
+                    <span class="btn__label"><%= editing ? 'Save changes' : 'Add to catalog' %></span>
+                    <%- icon('check') %>
+                </button>
+                <a class="btn btn--ghost btn--lg" href="/admin/products">Cancel</a>
+            </div>
+        </div>
+
+        <aside class="admin-form__aside">
+            <div class="preview-panel">
+                <div class="preview-panel__header">
+                    <h2>Live preview</h2>
+                    <span>Storefront card</span>
+                </div>
+                <article class="product-card product-card--preview">
+                    <div class="product-card__media">
+                        <img src="<%= previewImage %>" alt="" width="800" height="1000" data-preview-image>
+                        <span class="product-card__number">01</span>
+                    </div>
+                    <div class="product-card__body">
+                        <div class="product-card__meta">
+                            <span class="product-card__eyebrow">ShopExpress</span>
+                            <span class="product-card__price" data-preview-price-output><%= values.price ? formatPrice(values.price) : '$0.00' %></span>
+                        </div>
+                        <h3 class="product-card__title" data-preview-title-output><%= values.title || 'Your product title' %></h3>
+                        <p class="product-card__description" data-preview-description-output><%= values.description ? truncate(values.description, 86) : 'A short description of the object will appear here.' %></p>
+                    </div>
+                    <div class="product-card__footer">
+                        <span class="product-card__add-link">Add to cart <%- icon('plus') %></span>
+                    </div>
+                </article>
+                <p class="preview-panel__note"><%- icon('info') %> The preview updates live — title, price, description, and the first selected image. Saved changes appear on the storefront immediately.</p>
+            </div>
+        </aside>
+    </form>
+</main>
+
+<%- include('../includes/end') %>

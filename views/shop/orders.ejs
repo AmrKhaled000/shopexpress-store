@@ -1,0 +1,91 @@
+<%- include('../includes/head', { bodyClass: 'page-orders', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <header class="page-intro">
+        <div class="page-intro__main">
+            <p class="eyebrow">Your account</p>
+            <h1>Order history</h1>
+            <p class="page-intro__lede">Every order you’ve placed with ShopExpress, in one place. Questions about an order? The help pages have the essentials.</p>
+        </div>
+        <% if (stats.orderCount > 0) { %>
+            <a class="btn btn--outline" href="/products">Continue shopping <%- icon('arrow-right') %></a>
+        <% } %>
+    </header>
+
+    <% if (orders.length > 0) { %>
+        <section class="stat-grid stat-grid--orders" aria-label="Order summary">
+            <div class="stat-card">
+                <span class="stat-card__icon" aria-hidden="true"><%- icon('receipt') %></span>
+                <span class="stat-card__label">Orders placed</span>
+                <strong class="stat-card__value"><%= stats.orderCount %></strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-card__icon" aria-hidden="true"><%- icon('package') %></span>
+                <span class="stat-card__label">Objects collected</span>
+                <strong class="stat-card__value"><%= stats.itemCount %></strong>
+            </div>
+            <div class="stat-card">
+                <span class="stat-card__icon" aria-hidden="true"><%- icon('wallet') %></span>
+                <span class="stat-card__label">Lifetime spend</span>
+                <strong class="stat-card__value"><%= formatPrice(stats.totalSpent) %></strong>
+            </div>
+        </section>
+
+        <section class="orders-list" aria-label="Your orders">
+            <% orders.forEach(function (order, orderIndex) { %>
+                <article class="order-card reveal">
+                    <header class="order-card__header">
+                        <div class="order-card__identity">
+                            <span class="order-card__index">Order <%= String(orders.length - orderIndex).padStart(2, '0') %></span>
+                            <h2>#<%= order._id.toString().slice(-8).toUpperCase() %></h2>
+                        </div>
+                        <div class="order-card__meta">
+                            <time datetime="<%= order.createdAt ? new Date(order.createdAt).toISOString() : '' %>"><%- icon('calendar') %> <%= formatDate(order.createdAt) %></time>
+                            <span class="badge badge--success"><span class="badge__dot" aria-hidden="true"></span> Placed</span>
+                        </div>
+                    </header>
+
+                    <ul class="order-card__products">
+                        <% order.products.forEach(function (item) { %>
+                            <li>
+                                <img src="<%= item.product.imageUrl %>" alt="<%= item.product.title %>" width="64" height="80" loading="lazy" data-product-image>
+                                <div class="order-card__product-info">
+                                    <strong><%= item.product.title %></strong>
+                                    <span><%= item.quantity %> × <%= formatPrice(item.product.price) %><% if (item.product.size) { %> · Size <%= item.product.size %><% } %></span>
+                                </div>
+                                <span class="order-card__line-total"><%= formatPrice(Number(item.product.price) * item.quantity) %></span>
+                            </li>
+                        <% }); %>
+                    </ul>
+
+                    <footer class="order-card__footer">
+                        <p><span><%= order.products.length %></span> <%= order.products.length === 1 ? 'object' : 'objects' %> · Shipping included</p>
+                        <div class="order-card__total">
+                            <span>Total</span>
+                            <strong><%= formatPrice(order.total) %></strong>
+                        </div>
+                    </footer>
+                </article>
+            <% }); %>
+        </section>
+
+        <aside class="orders-note">
+            <%- icon('circle-help') %>
+            <p>Need to return something? Returns are accepted within 30 days. <a href="/help#returns">Read the returns policy</a>.</p>
+        </aside>
+    <% } else { %>
+        <div class="empty-state empty-state--large">
+            <span class="empty-state__icon" aria-hidden="true"><%- icon('receipt') %></span>
+            <h2>No orders yet</h2>
+            <p>Your order history will live here once you’ve placed your first order. The catalog is a good place to start.</p>
+            <div class="empty-state__actions">
+                <a class="btn" href="/products">Browse the collection <%- icon('arrow-right') %></a>
+                <a class="btn btn--ghost" href="/help">How ordering works</a>
+            </div>
+        </div>
+    <% } %>
+</main>
+
+<%- include('../includes/end') %>

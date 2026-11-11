@@ -1,0 +1,25 @@
+<%- include('includes/head', { bodyClass: 'page-error', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content" class="error-main">
+    <section class="error-page" aria-labelledby="error-heading">
+        <div class="error-page__visual error-page__visual--dark" aria-hidden="true">
+            <span class="error-page__code">403</span>
+            <span class="error-page__stamp">Access denied</span>
+        </div>
+        <div class="error-page__body">
+            <p class="eyebrow">A members-only corner</p>
+            <h1 id="error-heading">That door isn’t open to you.</h1>
+            <p>This area is reserved for the shop administrator. If you think you should have access, sign in with the right account and try again.</p>
+            <div class="error-page__actions">
+                <a class="btn" href="/">Back to the shop <%- icon('arrow-right') %></a>
+                <% if (isAuthenticated) { %>
+                    <a class="btn btn--outline" href="/products">Browse products</a>
+                <% } else { %>
+                    <a class="btn btn--outline" href="/login">Sign in</a>
+                <% } %>
+            </div>
+        </div>
+    </section>
+</main>
+
+<%- include('includes/end') %>

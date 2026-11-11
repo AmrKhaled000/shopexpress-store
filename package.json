@@ -1,0 +1,34 @@
+{
+  "name": "shopexpress",
+  "version": "2.0.0",
+  "description": "ShopExpress — a considered e-commerce storefront built with Express, EJS, and MongoDB.",
+  "main": "app.js",
+  "private": true,
+  "scripts": {
+    "start": "node --env-file-if-exists=.env app.js",
+    "dev": "node --watch --env-file-if-exists=.env app.js",
+    "seed": "node --env-file-if-exists=.env scripts/seed.js",
+    "check": "node scripts/check-syntax.js",
+    "test": "node tests/run.js"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "author": "ShopExpress",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "connect-flash": "^0.1.1",
+    "connect-mongodb-session": "^2.4.1",
+    "csurf": "^1.11.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "mongodb": "^3.7.4",
+    "mongoose": "^5.13.23",
+    "multer": "^2.5.0",
+    "nodemailer": "^4.7.0",
+    "nodemailer-sendgrid-transport": "^0.2.0"
+  }
+}

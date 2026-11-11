@@ -1,0 +1,27 @@
+<article class="product-card reveal">
+    <a class="product-card__media" href="/products/<%= product._id %>" tabindex="-1" aria-hidden="true">
+        <img src="<%= product.imageUrl %>" alt="" width="800" height="1000" loading="lazy" decoding="async" data-product-image>
+        <span class="product-card__number"><%= String((index || 0) + 1).padStart(2, '0') %></span>
+        <span class="product-card__view">View object <%- icon('arrow-up-right') %></span>
+    </a>
+    <div class="product-card__body">
+        <div class="product-card__meta">
+            <span class="product-card__eyebrow">ShopExpress</span>
+            <span class="product-card__price"><%= formatPrice(product.price) %></span>
+        </div>
+        <h3 class="product-card__title"><a href="/products/<%= product._id %>"><%= product.title %></a></h3>
+        <p class="product-card__description"><%= truncate(product.description, 86) %></p>
+    </div>
+    <% if (isAuthenticated) { %>
+        <div class="product-card__footer">
+            <form action="/cart" method="post" class="product-card__form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="productId" value="<%= product._id %>">
+                <input type="hidden" name="quantity" value="1">
+                <button class="btn btn--sm btn--ghost product-card__add" type="submit">
+                    <%- icon('plus') %> Add to cart
+                </button>
+            </form>
+        </div>
+    <% } %>
+</article>

@@ -1,0 +1,153 @@
+<%- include('../includes/head', { bodyClass: 'page-admin', pageStyles: ['/css/shop.css', '/css/admin.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <%- include('../includes/admin-nav.ejs') %>
+
+    <header class="page-intro page-intro--admin">
+        <div class="page-intro__main">
+            <p class="eyebrow">Store overview</p>
+            <h1>Dashboard</h1>
+            <p class="page-intro__lede">Revenue, orders, and customer activity across the whole storefront — the numbers behind the shelf.</p>
+        </div>
+        <div class="page-intro__actions">
+            <a class="btn btn--outline" href="/admin/add-product"><%- icon('plus') %> Add product</a>
+            <a class="btn" href="/admin/products"><%- icon('boxes') %> Manage catalog</a>
+        </div>
+    </header>
+
+    <section class="stat-grid" aria-label="Store statistics">
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('wallet') %></span>
+            <span class="stat-card__label">Total revenue</span>
+            <strong class="stat-card__value"><%= formatPrice(totals.revenue) %></strong>
+            <span class="stat-card__meta">
+                <%= formatPrice(last30.revenue) %> in the last 30 days
+                <% if (revenueTrend !== null) { %>
+                    · <span class="dash-trend <%= revenueTrend >= 0 ? 'dash-trend--up' : 'dash-trend--down' %>"><%- icon(revenueTrend >= 0 ? 'arrow-up' : 'arrow-down') %><%= Math.abs(revenueTrend) %>%</span> vs prior
+                <% } %>
+            </span>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('receipt') %></span>
+            <span class="stat-card__label">Orders placed</span>
+            <strong class="stat-card__value"><%= totals.orders %></strong>
+            <span class="stat-card__meta"><%= last30.orders %> in the last 30 days · <%= totals.units %> objects sold</span>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('chart-no-axes-column-increasing') %></span>
+            <span class="stat-card__label">Average order value</span>
+            <strong class="stat-card__value"><%= formatPrice(averageOrderValue) %></strong>
+            <span class="stat-card__meta">Across <%= pluralize(totals.orders, 'order') %></span>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('user-round') %></span>
+            <span class="stat-card__label">Customers</span>
+            <strong class="stat-card__value"><%= customerCount %></strong>
+            <span class="stat-card__meta">Registered accounts · <%= pluralize(productCount, 'product') %> live</span>
+        </article>
+    </section>
+
+    <section class="dash-grid">
+        <article class="admin-panel dash-chart-panel" aria-labelledby="revenue-chart-heading">
+            <div class="admin-toolbar">
+                <div>
+                    <h2 id="revenue-chart-heading">Revenue <span>6 months</span></h2>
+                    <p>Placed orders per calendar month</p>
+                </div>
+                <div class="dash-chart__summary">
+                    <span class="stat-card__label">6-month total</span>
+                    <strong><%= formatPrice(sixMonthRevenue) %></strong>
+                </div>
+            </div>
+            <div class="dash-chart">
+                <svg viewBox="0 0 <%= chart.width %> <%= chart.height %>" role="img" aria-label="<%= chart.ariaLabel %>">
+                    <line class="dash-chart__baseline" x1="0" y1="<%= chart.baseline %>" x2="<%= chart.width %>" y2="<%= chart.baseline %>"></line>
+                    <% chart.bars.forEach(function (bar) { %>
+                        <rect class="dash-chart__bar" x="<%= bar.x %>" y="<%= bar.y %>" width="<%= bar.width %>" height="<%= Math.max(bar.height, bar.revenue > 0 ? 4 : 0) %>" rx="6"></rect>
+                        <text class="dash-chart__value" x="<%= bar.cx %>" y="<%= bar.valueY %>"><%= bar.valueLabel %></text>
+                        <text class="dash-chart__label" x="<%= bar.cx %>" y="<%= bar.labelY %>"><%= bar.label %></text>
+                    <% }); %>
+                </svg>
+            </div>
+        </article>
+
+        <aside class="admin-panel dash-top" aria-labelledby="top-products-heading">
+            <div class="admin-toolbar">
+                <div>
+                    <h2 id="top-products-heading">Top objects <span><%= topProducts.length %></span></h2>
+                    <p>Best sellers by units moved</p>
+                </div>
+            </div>
+            <% if (topProducts.length > 0) { %>
+                <ol class="top-list">
+                    <% topProducts.forEach(function (entry, index) { %>
+                        <li class="top-list__item">
+                            <span class="top-list__rank" aria-hidden="true"><%= index + 1 %></span>
+                            <div class="top-list__info">
+                                <strong><%= entry._id || 'Untitled product' %></strong>
+                                <span><%= pluralize(entry.units, 'unit') %> · <%= formatPrice(entry.revenue) %></span>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ol>
+            <% } else { %>
+                <div class="dash-empty">
+                    <span class="empty-state__icon" aria-hidden="true"><%- icon('shopping-bag') %></span>
+                    <h3>Nothing sold yet</h3>
+                    <p>Once the first order lands, the best-selling objects will rise to the top here.</p>
+                </div>
+            <% } %>
+        </aside>
+    </section>
+
+    <section class="admin-panel" aria-labelledby="recent-orders-heading">
+        <div class="admin-toolbar">
+            <div>
+                <h2 id="recent-orders-heading">Recent orders <span><%= recentOrders.length %></span></h2>
+                <p>The latest orders across every account, newest first</p>
+            </div>
+        </div>
+        <% if (recentOrders.length > 0) { %>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <caption class="visually-hidden">Most recent orders across all customers</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Order</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Placed</th>
+                            <th scope="col">Items</th>
+                            <th scope="col" class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% recentOrders.forEach(function (order) { %>
+                            <tr>
+                                <td data-label="Order" class="admin-table__price">#<%= order._id.toString().slice(-8).toUpperCase() %></td>
+                                <td data-label="Customer"><span class="dash-customer"><%= order.user.email %></span></td>
+                                <td data-label="Placed"><time datetime="<%= order.createdAt ? new Date(order.createdAt).toISOString() : '' %>"><%= formatDate(order.createdAt) %></time></td>
+                                <td data-label="Items"><%= order.products.reduce(function (sum, item) { return sum + item.quantity; }, 0) %></td>
+                                <td data-label="Total" class="text-right admin-table__price"><%= formatPrice(order.total) %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="dash-empty">
+                <span class="empty-state__icon" aria-hidden="true"><%- icon('receipt') %></span>
+                <h3>No orders yet</h3>
+                <p>When customers check out, their orders will appear here and feed the chart above.</p>
+            </div>
+        <% } %>
+    </section>
+
+    <aside class="admin-note">
+        <span aria-hidden="true"><%- icon('info') %></span>
+        <p>Revenue counts every placed order at its snapshot price. Catalog prices can change without rewriting history; order snapshots keep what the customer actually paid.</p>
+    </aside>
+</main>
+
+<%- include('../includes/end') %>

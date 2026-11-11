@@ -1,0 +1,27 @@
+<nav class="admin-nav" aria-label="Admin navigation">
+    <div class="admin-nav__brand">
+        <span class="admin-nav__badge"><%- icon('layout-dashboard') %> Studio</span>
+        <span class="admin-nav__context">Admin</span>
+    </div>
+    <ul class="admin-nav__list">
+        <li>
+            <a href="/admin/dashboard" class="<%= path === '/admin/dashboard' ? 'is-active' : '' %>" <%= path === '/admin/dashboard' ? 'aria-current="page"' : '' %>>
+                <%- icon('layout-dashboard') %> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="/admin/products" class="<%= (path === '/admin/products' || path === '/admin/edit-product') ? 'is-active' : '' %>" <%= (path === '/admin/products' || path === '/admin/edit-product') ? 'aria-current="page"' : '' %>>
+                <%- icon('boxes') %> Catalog
+            </a>
+        </li>
+        <li>
+            <a href="/admin/add-product" class="<%= path === '/admin/add-product' ? 'is-active' : '' %>" <%= path === '/admin/add-product' ? 'aria-current="page"' : '' %>>
+                <%- icon('plus') %> Add product
+            </a>
+        </li>
+        <li class="admin-nav__spacer" aria-hidden="true"></li>
+        <li>
+            <a href="/products"><%- icon('store') %> View storefront <%- icon('external-link', 'admin-nav__external') %></a>
+        </li>
+    </ul>
+</nav>

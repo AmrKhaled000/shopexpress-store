@@ -1,0 +1,154 @@
+<div class="announcement">
+    <div class="container announcement__inner">
+        <p class="announcement__message">
+            <span class="announcement__pulse" aria-hidden="true"></span>
+            <span class="announcement__primary">Complimentary shipping <span class="announcement__detail">on every order</span></span>
+            <span class="announcement__separator" aria-hidden="true">/</span>
+            <a href="/help#returns">30-day returns</a>
+        </p>
+        <p class="announcement__aside">Independent shop · Est. 2026</p>
+    </div>
+</div>
+
+<header class="site-header" data-site-header>
+    <div class="container site-header__inner">
+        <button class="icon-btn site-header__menu" type="button" data-menu-open aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu">
+            <%- icon('menu') %>
+        </button>
+
+        <a class="brand" href="/" aria-label="ShopExpress home">
+            <span class="brand__mark" aria-hidden="true">S<span class="brand__dot"></span></span>
+            <span class="brand__word">ShopExpress</span>
+        </a>
+
+        <nav class="primary-nav" aria-label="Primary navigation">
+            <ul class="primary-nav__list">
+                <li>
+                    <a class="primary-nav__link <%= path === '/' ? 'is-active' : '' %>" href="/" <%= path === '/' ? 'aria-current="page"' : '' %>>Shop</a>
+                </li>
+                <li>
+                    <a class="primary-nav__link <%= path === '/products' ? 'is-active' : '' %>" href="/products" <%= path === '/products' ? 'aria-current="page"' : '' %>>Products</a>
+                </li>
+                <li>
+                    <a class="primary-nav__link <%= path === '/about' ? 'is-active' : '' %>" href="/about" <%= path === '/about' ? 'aria-current="page"' : '' %>>About</a>
+                </li>
+                <li>
+                    <a class="primary-nav__link <%= path === '/help' ? 'is-active' : '' %>" href="/help" <%= path === '/help' ? 'aria-current="page"' : '' %>>Help</a>
+                </li>
+            </ul>
+        </nav>
+
+        <form class="header-search" action="/products" method="get" role="search">
+            <label class="visually-hidden" for="header-search-input">Search products</label>
+            <span class="header-search__icon" aria-hidden="true"><%- icon('search') %></span>
+            <input id="header-search-input" name="q" type="search" placeholder="Search the catalog" value="<%= searchQuery %>" autocomplete="off">
+            <button class="header-search__submit" type="submit"><span class="visually-hidden">Search</span><%- icon('arrow-right') %></button>
+        </form>
+
+        <div class="header-actions">
+            <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" aria-pressed="false">
+                <span class="theme-toggle__icon theme-toggle__icon--sun"><%- icon('sun') %></span>
+                <span class="theme-toggle__icon theme-toggle__icon--moon"><%- icon('moon') %></span>
+            </button>
+
+            <% if (isAuthenticated) { %>
+                <a class="icon-btn header-cart" href="/cart" aria-label="Cart, <%= cartCount %> <%= cartCount === 1 ? 'item' : 'items' %>">
+                    <%- icon('shopping-bag') %>
+                    <% if (cartCount > 0) { %><span class="cart-count"><%= cartCount %></span><% } %>
+                </a>
+
+                <details class="account" data-account>
+                    <summary class="account__trigger" aria-label="Account menu for <%= userEmail %>">
+                        <span class="avatar" aria-hidden="true"><%= initials(userEmail) %></span>
+                        <span class="account__label">Account</span>
+                        <%- icon('chevron-down', 'account__chevron') %>
+                    </summary>
+                    <div class="account__panel">
+                        <p class="account__eyebrow">Signed in as</p>
+                        <p class="account__email"><%= userEmail %></p>
+                        <ul class="account__links">
+                            <li><a href="/orders"><%- icon('receipt') %> Orders</a></li>
+                            <li><a href="/cart"><%- icon('shopping-bag') %> Cart</a></li>
+                            <% if (isAdmin) { %>
+                                <li><a href="/admin/products"><%- icon('layout-dashboard') %> Admin studio</a></li>
+                            <% } %>
+                            <li><a href="/help"><%- icon('circle-help') %> Help & information</a></li>
+                        </ul>
+                        <form action="/logout" method="post" class="account__logout">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="btn btn--ghost btn--block" type="submit"><%- icon('log-out') %> Sign out</button>
+                        </form>
+                    </div>
+                </details>
+            <% } else { %>
+                <a class="header-signin" href="/login">Sign in</a>
+                <a class="btn btn--sm header-join" href="/signup">Join</a>
+            <% } %>
+        </div>
+    </div>
+</header>
+
+<div class="backdrop" data-menu-close></div>
+<aside class="mobile-nav" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Site menu" aria-hidden="true">
+    <div class="mobile-nav__top">
+        <a class="brand" href="/" aria-label="ShopExpress home">
+            <span class="brand__mark" aria-hidden="true">S<span class="brand__dot"></span></span>
+            <span class="brand__word">ShopExpress</span>
+        </a>
+        <button class="icon-btn mobile-nav__close" type="button" data-menu-close aria-label="Close menu">
+            <%- icon('x') %>
+        </button>
+    </div>
+
+    <form class="mobile-search" action="/products" method="get" role="search">
+        <label class="visually-hidden" for="mobile-search-input">Search products</label>
+        <span class="mobile-search__icon" aria-hidden="true"><%- icon('search') %></span>
+        <input id="mobile-search-input" name="q" type="search" placeholder="Search the catalog" value="<%= searchQuery %>" autocomplete="off">
+        <button type="submit" class="mobile-search__submit" aria-label="Search"><%- icon('arrow-right') %></button>
+    </form>
+
+    <nav aria-label="Mobile navigation">
+        <p class="mobile-nav__label">Browse</p>
+        <ul class="mobile-nav__list">
+            <li><a class="<%= path === '/' ? 'is-active' : '' %>" href="/"><%- icon('store') %> Shop <span aria-hidden="true">01</span></a></li>
+            <li><a class="<%= path === '/products' ? 'is-active' : '' %>" href="/products"><%- icon('grid-2x2') %> Products <span aria-hidden="true">02</span></a></li>
+            <li><a class="<%= path === '/about' ? 'is-active' : '' %>" href="/about"><%- icon('leaf') %> About <span aria-hidden="true">03</span></a></li>
+            <li><a class="<%= path === '/help' ? 'is-active' : '' %>" href="/help"><%- icon('circle-help') %> Help <span aria-hidden="true">04</span></a></li>
+        </ul>
+
+        <% if (isAuthenticated) { %>
+            <p class="mobile-nav__label">Your account</p>
+            <p class="mobile-nav__email"><%= userEmail %></p>
+            <ul class="mobile-nav__list">
+                <li><a class="<%= path === '/cart' ? 'is-active' : '' %>" href="/cart"><%- icon('shopping-bag') %> Cart <% if (cartCount > 0) { %><span class="cart-count"><%= cartCount %></span><% } %></a></li>
+                <li><a class="<%= path === '/orders' ? 'is-active' : '' %>" href="/orders"><%- icon('receipt') %> Orders</a></li>
+                <% if (isAdmin) { %>
+                    <li><a class="<%= path.indexOf('/admin') === 0 ? 'is-active' : '' %>" href="/admin/products"><%- icon('layout-dashboard') %> Admin studio</a></li>
+                <% } %>
+            </ul>
+            <form action="/logout" method="post" class="mobile-nav__logout">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn--ghost btn--block" type="submit"><%- icon('log-out') %> Sign out</button>
+            </form>
+        <% } else { %>
+            <div class="mobile-nav__actions">
+                <a class="btn" href="/login">Sign in</a>
+                <a class="btn btn--outline" href="/signup">Create account</a>
+            </div>
+        <% } %>
+    </nav>
+
+    <div class="mobile-nav__appearance">
+        <span>Appearance</span>
+        <button class="theme-pill" type="button" data-theme-toggle aria-label="Switch to dark theme" aria-pressed="false">
+            <span class="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true"><%- icon('sun') %></span>
+            <span class="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true"><%- icon('moon') %></span>
+            <span data-theme-label>Dark mode</span>
+        </button>
+    </div>
+
+    <div class="mobile-nav__foot">
+        <p>Complimentary shipping, always.</p>
+        <p>© <%= currentYear %> ShopExpress</p>
+    </div>
+</aside>

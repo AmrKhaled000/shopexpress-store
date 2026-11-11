@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="<%= typeof pageDescription !== 'undefined' && pageDescription ? pageDescription : 'ShopExpress is a considered catalog of lighting, audio, and everyday objects, chosen to be kept.' %>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ShopExpress">
+    <meta property="og:title" content="<%= pageTitle %> · ShopExpress">
+    <meta property="og:description" content="<%= typeof pageDescription !== 'undefined' && pageDescription ? pageDescription : 'ShopExpress is a considered catalog of lighting, audio, and everyday objects, chosen to be kept.' %>">
+    <meta name="theme-color" content="#F5F1E8" id="meta-theme-color">
+    <meta name="color-scheme" content="light dark">
+    <title><%= pageTitle %> · ShopExpress</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preload" href="/fonts/inter-400_700-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/fraunces-300_700-normal.woff2" as="font" type="font/woff2" crossorigin>
+    <script src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/main.css">
+    <% (pageStyles || []).forEach(function (stylesheet) { %>
+    <link rel="stylesheet" href="<%= stylesheet %>">
+    <% }); %>
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <%- include('navigation.ejs') %>

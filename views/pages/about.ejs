@@ -1,0 +1,109 @@
+<%- include('../includes/head', { bodyClass: 'page-about', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <header class="about-hero">
+        <p class="eyebrow">About ShopExpress</p>
+        <h1>A slower kind<br>of <em>shop.</em></h1>
+        <div class="about-hero__foot">
+            <p>ShopExpress is a small, independent catalog built around a simple idea: fewer things, chosen better. We look for objects that earn their place — then we keep the shelf deliberately short.</p>
+            <p class="about-hero__note">Independent · Est. 2026 · Every order shipped with care</p>
+        </div>
+    </header>
+
+    <section class="about-collage" aria-label="Objects from the collection">
+        <figure class="about-collage__main">
+            <img src="/images/products/meridian-headphones.jpg" alt="Meridian Headphones" width="800" height="1000">
+            <figcaption>The Meridian Headphones / Object no. 02</figcaption>
+        </figure>
+        <div class="about-collage__side">
+            <figure>
+                <img src="/images/products/terra-mug.jpg" alt="Terra Mug" width="800" height="1000">
+                <figcaption>Terra Mug / No. 03</figcaption>
+            </figure>
+            <figure>
+                <img src="/images/products/mono-watch.jpg" alt="Mono Watch" width="800" height="1000">
+                <figcaption>Mono Watch / No. 08</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section class="about-story" aria-labelledby="story-heading">
+        <div class="about-story__title">
+            <p class="eyebrow">The long version</p>
+            <h2 id="story-heading">A tight edit,<br>on purpose.</h2>
+        </div>
+        <div class="about-story__copy">
+            <p class="about-story__lede">Most shops grow by adding. We started by removing — the noise, the endless options, the things that look good for a season and then quietly stop being useful.</p>
+            <p>What’s left is a small collection of lighting, audio, desk objects, and everyday essentials. Each piece is chosen for how it works on a Tuesday afternoon, not just how it photographs. We care about honest materials, quiet forms, and details that reveal themselves over time.</p>
+            <p>ShopExpress is run like a studio, not a warehouse. The catalog stays small so every object can be described honestly, shipped carefully, and supported properly. If something isn’t right, we’d rather fix it than hide behind a policy.</p>
+            <a class="text-link" href="/products">See what’s on the shelf <%- icon('arrow-right') %></a>
+        </div>
+    </section>
+
+    <section class="about-principles" aria-labelledby="principles-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">What we look for</p>
+                <h2 id="principles-heading">Three questions, every time.</h2>
+            </div>
+        </div>
+        <ol class="principles-list">
+            <li class="reveal">
+                <span class="principles-list__num">01</span>
+                <div>
+                    <h3>Does it do its job beautifully?</h3>
+                    <p>Usefulness first. An object should make the thing you already do feel a little more considered.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="principles-list__num">02</span>
+                <div>
+                    <h3>Would we keep it for years?</h3>
+                    <p>Trends move on. Materials, proportions, and repairs don’t. We choose pieces with a long horizon.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="principles-list__num">03</span>
+                <div>
+                    <h3>Is it worth the space?</h3>
+                    <p>Every object takes up room on a shelf and in a life. The catalog only grows when the answer is a clear yes.</p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <section class="about-stats" aria-label="Shop facts">
+        <div>
+            <strong><%= productCount %></strong>
+            <span>Objects in the current edit</span>
+        </div>
+        <div>
+            <strong>2 days</strong>
+            <span>Typical dispatch time</span>
+        </div>
+        <div>
+            <strong>30 days</strong>
+            <span>To decide if it belongs</span>
+        </div>
+        <div>
+            <strong>$0</strong>
+            <span>Shipping, on every order</span>
+        </div>
+    </section>
+
+    <section class="cta-band" aria-labelledby="about-cta-heading">
+        <div class="cta-band__body">
+            <p class="eyebrow eyebrow--light">The collection</p>
+            <h2 id="about-cta-heading">Find your object.</h2>
+            <p>A small catalog, but a considered one. Start with the edit and see what earns a place.</p>
+        </div>
+        <div class="cta-band__actions">
+            <a class="btn btn--light" href="/products">Browse the collection <%- icon('arrow-right') %></a>
+            <a class="text-link text-link--light" href="/help">Read the help pages</a>
+        </div>
+    </section>
+</main>
+
+<%- include('../includes/end') %>

@@ -1,0 +1,128 @@
+<%- include('../includes/head', { bodyClass: 'page-admin', pageStyles: ['/css/shop.css', '/css/admin.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <%- include('../includes/admin-nav.ejs') %>
+
+    <header class="page-intro page-intro--admin">
+        <div class="page-intro__main">
+            <p class="eyebrow">Catalog management</p>
+            <h1>Your catalog</h1>
+            <p class="page-intro__lede">Every object on the shelf, with the details that matter. Add new pieces, refine the copy, or retire something when its time has come.</p>
+        </div>
+        <div class="page-intro__actions">
+            <a class="btn" href="/admin/add-product"><%- icon('plus') %> Add product</a>
+            <a class="btn btn--outline" href="/products">View storefront <%- icon('external-link') %></a>
+        </div>
+    </header>
+
+    <section class="stat-grid" aria-label="Catalog statistics">
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('boxes') %></span>
+            <span class="stat-card__label">Products live</span>
+            <strong class="stat-card__value"><%= prods.length %></strong>
+            <span class="stat-card__meta">Visible in the storefront</span>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('wallet') %></span>
+            <span class="stat-card__label">Catalog value</span>
+            <strong class="stat-card__value"><%= formatPrice(stats.totalValue) %></strong>
+            <span class="stat-card__meta">Combined list price</span>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('chart-no-axes-column-increasing') %></span>
+            <span class="stat-card__label">Average price</span>
+            <strong class="stat-card__value"><%= formatPrice(stats.averagePrice) %></strong>
+            <span class="stat-card__meta">Across the current edit</span>
+        </article>
+        <article class="stat-card">
+            <span class="stat-card__icon" aria-hidden="true"><%- icon('sparkles') %></span>
+            <span class="stat-card__label">Added recently</span>
+            <strong class="stat-card__value"><%= stats.recentCount %></strong>
+            <span class="stat-card__meta">In the last 30 days</span>
+        </article>
+    </section>
+
+    <section class="admin-panel" aria-labelledby="catalog-table-heading">
+        <div class="admin-toolbar">
+            <div>
+                <h2 id="catalog-table-heading">All products <span><%= prods.length %></span></h2>
+                <p>Edit details or remove an object. Changes appear in the storefront immediately.</p>
+            </div>
+            <% if (prods.length > 0) { %>
+                <div class="admin-filter">
+                    <label class="visually-hidden" for="admin-product-filter">Filter products</label>
+                    <span class="admin-filter__icon" aria-hidden="true"><%- icon('search') %></span>
+                    <input id="admin-product-filter" type="search" placeholder="Filter by name, price…" data-table-filter autocomplete="off">
+                </div>
+            <% } %>
+        </div>
+
+        <% if (prods.length > 0) { %>
+            <div class="admin-table-wrap">
+                <table class="admin-table" data-filter-table>
+                    <caption class="visually-hidden">All products in your catalog</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Product</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Added</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% prods.forEach(function (product) { %>
+                            <tr data-filter-row>
+                                <td data-label="Product">
+                                    <div class="admin-product">
+                                        <img src="<%= product.imageUrl %>" alt="" width="64" height="80" loading="lazy" data-product-image>
+                                        <div class="admin-product__info">
+                                            <a href="/products/<%= product._id %>"><%= product.title %></a>
+                                            <span>Object no. <%= product._id.toString().slice(-3).toUpperCase() %></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Price" class="admin-table__price"><%= formatPrice(product.price) %></td>
+                                <td data-label="Added"><time datetime="<%= product._id.getTimestamp().toISOString() %>"><%= formatDate(product._id.getTimestamp(), { short: true }) %></time></td>
+                                <td data-label="Status"><span class="badge badge--success"><span class="badge__dot" aria-hidden="true"></span> Live</span></td>
+                                <td data-label="Actions">
+                                    <div class="table-actions">
+                                        <a class="icon-btn icon-btn--sm" href="/products/<%= product._id %>" aria-label="View <%= product.title %> in the storefront" title="View in storefront"><%- icon('external-link') %></a>
+                                        <a class="icon-btn icon-btn--sm" href="/admin/edit-product/<%= product._id %>?edit=true" aria-label="Edit <%= product.title %>" title="Edit product"><%- icon('pen-line') %></a>
+                                        <form action="/admin/delete-product" method="post" data-confirm="Delete “<%= product.title %>”? This removes it from the storefront and cannot be undone.">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <input type="hidden" name="productId" value="<%= product._id %>">
+                                            <button class="icon-btn icon-btn--sm icon-btn--danger" type="submit" aria-label="Delete <%= product.title %>" title="Delete product"><%- icon('trash-2') %></button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                        <tr class="admin-table__empty" data-filter-empty hidden>
+                            <td colspan="5">
+                                <%- icon('search') %>
+                                <p>No products match that filter.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="admin-empty">
+                <span class="empty-state__icon" aria-hidden="true"><%- icon('boxes') %></span>
+                <h2>The shelf is empty</h2>
+                <p>Add your first object and it will appear in the storefront right away.</p>
+                <a class="btn" href="/admin/add-product"><%- icon('plus') %> Add your first product</a>
+            </div>
+        <% } %>
+    </section>
+
+    <aside class="admin-note">
+        <span aria-hidden="true"><%- icon('info') %></span>
+        <p>Products belong to the admin account that created them. The catalog you see here is the same catalog customers browse.</p>
+    </aside>
+</main>
+
+<%- include('../includes/end') %>

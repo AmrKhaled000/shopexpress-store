@@ -1,0 +1,29 @@
+<%- include('includes/head', { bodyClass: 'page-error', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content" class="error-main">
+    <section class="error-page" aria-labelledby="error-heading">
+        <div class="error-page__visual" aria-hidden="true">
+            <span class="error-page__cloud error-page__cloud--one"></span>
+            <span class="error-page__cloud error-page__cloud--two"></span>
+            <span class="error-page__code">404</span>
+            <span class="error-page__stamp">Not found</span>
+        </div>
+        <div class="error-page__body">
+            <p class="eyebrow">Lost in the catalog</p>
+            <h1 id="error-heading">This page has moved on.</h1>
+            <p>That URL no longer points to anything on the shelf. It may have been renamed, retired, or never existed in the first place.</p>
+            <div class="error-page__actions">
+                <a class="btn" href="/">Back to the shop <%- icon('arrow-right') %></a>
+                <a class="btn btn--outline" href="/products">Browse products</a>
+            </div>
+            <form class="error-search" action="/products" method="get" role="search">
+                <span class="error-search__icon" aria-hidden="true"><%- icon('search') %></span>
+                <label class="visually-hidden" for="error-search">Search the catalog</label>
+                <input id="error-search" name="q" type="search" placeholder="Or search for an object…" autocomplete="off">
+                <button class="btn btn--ghost" type="submit">Search</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<%- include('includes/end') %>

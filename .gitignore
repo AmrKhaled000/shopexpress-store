@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# User-uploaded product images
+public/images/uploads/*
+!public/images/uploads/.gitkeep
+*.pem
+*.key
+
+# Local development services and caches
+.mongo-data/
+.mongo-bin/
+.npm-cache/
+.tmp-*
+.artifacts/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test / tooling output
+coverage/
+playwright-report/
+test-results/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

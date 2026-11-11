@@ -1,0 +1,155 @@
+<%- include('../includes/head', { bodyClass: 'page-help', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <header class="help-hero">
+        <p class="eyebrow">Help &amp; information</p>
+        <h1>How can<br>we <em>help?</em></h1>
+        <p class="help-hero__lede">Straight answers about ordering, delivery, returns, and your account. No runaround, no fine-print maze.</p>
+    </header>
+
+    <div class="help-layout">
+        <aside class="help-nav" aria-label="Help topics">
+            <p class="help-nav__label">Jump to</p>
+            <nav>
+                <ul>
+                    <li><a href="#orders">Orders</a></li>
+                    <li><a href="#shipping">Shipping</a></li>
+                    <li><a href="#returns">Returns</a></li>
+                    <li><a href="#account">Account</a></li>
+                    <li><a href="#checkout">Checkout</a></li>
+                </ul>
+            </nav>
+            <div class="help-nav__card">
+                <%- icon('headset') %>
+                <p>Still stuck? The help pages cover the essentials — your account and order history hold the rest.</p>
+                <a class="text-link" href="/orders">Open your orders <%- icon('arrow-right') %></a>
+            </div>
+        </aside>
+
+        <div class="help-content">
+            <section class="help-section" id="orders" aria-labelledby="orders-heading">
+                <p class="eyebrow">01 / Orders</p>
+                <h2 id="orders-heading">Placing an order</h2>
+                <p>Add an object to your cart, review the quantity, then place your order from the cart. Every order is recorded in your account as soon as it’s placed.</p>
+                <div class="help-faq">
+                    <details class="disclosure" open>
+                        <summary>How do I place an order? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <ol class="help-steps">
+                                <li><span>01</span> Sign in or create an account.</li>
+                                <li><span>02</span> Add the objects you want to your cart.</li>
+                                <li><span>03</span> Review your cart and choose <strong>Place order</strong>.</li>
+                                <li><span>04</span> Your order appears immediately in <a href="/orders">order history</a>.</li>
+                            </ol>
+                        </div>
+                    </details>
+                    <details class="disclosure">
+                        <summary>Can I change an order after placing it? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Orders are recorded as soon as they’re placed, so changes aren’t supported from the storefront. If something isn’t right, start a return once the object arrives — the 30-day return window applies from delivery.</p>
+                        </div>
+                    </details>
+                    <details class="disclosure">
+                        <summary>Where can I see my order history? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Your <a href="/orders">order history</a> lists every order, the objects in it, the quantity, and the total. You need to be signed in with the account that placed the order.</p>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="help-section" id="shipping" aria-labelledby="shipping-heading">
+                <p class="eyebrow">02 / Shipping</p>
+                <h2 id="shipping-heading">Delivery</h2>
+                <p>Shipping is complimentary on every order, with no minimum. Orders are prepared in the studio and typically leave within two business days.</p>
+                <div class="help-cards">
+                    <div class="help-card">
+                        <span aria-hidden="true"><%- icon('truck') %></span>
+                        <h3>Complimentary, always</h3>
+                        <p>One flat answer at checkout: free. No thresholds, no surprise fees.</p>
+                    </div>
+                    <div class="help-card">
+                        <span aria-hidden="true"><%- icon('package') %></span>
+                        <h3>Packed simply</h3>
+                        <p>Orders are wrapped to protect the object without filling the box with waste.</p>
+                    </div>
+                    <div class="help-card">
+                        <span aria-hidden="true"><%- icon('clock') %></span>
+                        <h3>Two-day dispatch</h3>
+                        <p>Most orders are on their way within two business days of being placed.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="help-section" id="returns" aria-labelledby="returns-heading">
+                <p class="eyebrow">03 / Returns</p>
+                <h2 id="returns-heading">Returns &amp; the 30-day window</h2>
+                <p>If an object isn’t right for your space, return it within 30 days of delivery in its original condition and packaging. We’d rather you keep something you love than something you tolerate.</p>
+                <div class="help-faq">
+                    <details class="disclosure" open>
+                        <summary>What can be returned? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Objects in their original condition and packaging, within 30 days of delivery. Anything that shows signs of use beyond a careful trial may not be eligible.</p>
+                        </div>
+                    </details>
+                    <details class="disclosure">
+                        <summary>How do I start a return? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Keep your order number and original packaging, then follow the instructions in your order confirmation. Returns are reviewed individually so each object gets the right handling.</p>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="help-section" id="account" aria-labelledby="account-heading">
+                <p class="eyebrow">04 / Account</p>
+                <h2 id="account-heading">Accounts &amp; passwords</h2>
+                <div class="help-faq">
+                    <details class="disclosure" open>
+                        <summary>How do I create an account? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Choose <a href="/signup">Create account</a>, enter your email, and set a password of at least six characters. Your cart and order history stay attached to that account.</p>
+                        </div>
+                    </details>
+                    <details class="disclosure">
+                        <summary>I forgot my password. What now? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Use <a href="/reset">Forgot password</a> and enter your email. If the account exists, a password reset link is sent. The link expires after one hour, and the confirmation page doesn’t reveal whether an email is registered.</p>
+                        </div>
+                    </details>
+                    <details class="disclosure">
+                        <summary>How do I sign out? <%- icon('chevron-down', 'disclosure__chevron') %></summary>
+                        <div class="disclosure__body">
+                            <p>Open the account menu in the header and choose <strong>Sign out</strong>, or use the sign-out link in the footer. Your cart is saved to your account for next time.</p>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section class="help-section" id="checkout" aria-labelledby="checkout-heading">
+                <p class="eyebrow">05 / Checkout</p>
+                <h2 id="checkout-heading">Payment &amp; this storefront</h2>
+                <div class="help-callout">
+                    <span aria-hidden="true"><%- icon('info') %></span>
+                    <div>
+                        <h3>No payment details are collected</h3>
+                        <p>ShopExpress is a demonstration storefront. Placing an order records it in your account history without collecting a payment method, shipping address, or card details.</p>
+                    </div>
+                </div>
+                <p>Questions about the catalog itself? The <a href="/about">about page</a> explains how objects are chosen and how the shop is run.</p>
+            </section>
+        </div>
+    </div>
+
+    <section class="help-cta">
+        <div>
+            <p class="eyebrow">Ready when you are</p>
+            <h2>Back to the good part.</h2>
+        </div>
+        <a class="btn" href="/products">Browse the collection <%- icon('arrow-right') %></a>
+    </section>
+</main>
+
+<%- include('../includes/end') %>

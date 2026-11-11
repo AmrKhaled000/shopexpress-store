@@ -1,0 +1,47 @@
+<%- include('../includes/head', { bodyClass: 'page-auth', pageStyles: ['/css/auth.css'] }) %>
+
+<main id="main-content" class="auth-main">
+    <div class="auth-shell">
+        <%- include('../includes/auth-aside.ejs') %>
+
+        <section class="auth-panel" aria-labelledby="reset-heading">
+            <div class="auth-card">
+                <div class="auth-card__header">
+                    <p class="eyebrow">Account recovery</p>
+                    <h1 id="reset-heading">Reset your password</h1>
+                    <p>Enter the email on your account and we’ll send a private link to set a new password.</p>
+                </div>
+
+                <%- include('../includes/messages.ejs') %>
+
+                <form class="auth-form" action="/reset" method="POST" data-validate novalidate>
+                    <div class="form-field">
+                        <label for="email">Email address</label>
+                        <div class="input-wrap">
+                            <span class="input-wrap__icon" aria-hidden="true"><%- icon('mail') %></span>
+                            <input type="email" name="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                        <p class="field-error">Enter a valid email address.</p>
+                    </div>
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn--lg btn--block" type="submit">
+                        <span class="btn__label">Send reset link</span>
+                        <%- icon('arrow-right') %>
+                    </button>
+                </form>
+
+                <div class="auth-message">
+                    <%- icon('info') %>
+                    <p>For privacy, we’ll show the same confirmation whether or not an account exists for that email.</p>
+                </div>
+
+                <div class="auth-card__footer">
+                    <p><a href="/login"><%- icon('arrow-left') %> Back to sign in</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('../includes/end') %>

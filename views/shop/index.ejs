@@ -1,0 +1,203 @@
+<%- include('../includes/head', { bodyClass: 'page-home', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <section class="hero" aria-labelledby="hero-heading">
+        <div class="hero__copy">
+            <p class="eyebrow"><span class="eyebrow__mark" aria-hidden="true"></span> The 2026 collection</p>
+            <h1 id="hero-heading">Fewer things.<br><em>Chosen better.</em></h1>
+            <p class="hero__lede">A small catalog of objects for the desk, the home, and the everyday — selected for the way they feel, not the way they trend.</p>
+            <div class="hero__actions">
+                <a class="btn btn--lg" href="/products">Shop all objects <%- icon('arrow-right') %></a>
+                <a class="text-link" href="/about">Our approach <%- icon('arrow-up-right') %></a>
+            </div>
+            <dl class="hero__stats">
+                <div>
+                    <dt>Catalog</dt>
+                    <dd><%= totalProducts %> <%= totalProducts === 1 ? 'object' : 'objects' %></dd>
+                </div>
+                <div>
+                    <dt>Shipping</dt>
+                    <dd>Always included</dd>
+                </div>
+                <div>
+                    <dt>Returns</dt>
+                    <dd>30 days, no fuss</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div class="hero__stage" aria-label="Featured objects">
+            <div class="hero__orbit" aria-hidden="true"></div>
+            <div class="hero__image-frame">
+                <% if (prods[0]) { %>
+                    <img src="<%= prods[0].imageUrl %>" alt="<%= prods[0].title %>" width="800" height="1000" data-product-image>
+                    <div class="hero__frame-caption">
+                        <span class="hero__frame-label">Featured object</span>
+                        <a href="/products/<%= prods[0]._id %>"><%= prods[0].title %> <%- icon('arrow-up-right') %></a>
+                    </div>
+                <% } else { %>
+                    <div class="hero__empty">
+                        <span class="brand__mark brand__mark--large" aria-hidden="true">S<span class="brand__dot"></span></span>
+                        <p>The first objects are on their way.</p>
+                    </div>
+                <% } %>
+            </div>
+
+            <% if (prods[1]) { %>
+                <a class="hero__secondary" href="/products/<%= prods[1]._id %>">
+                    <img src="<%= prods[1].imageUrl %>" alt="<%= prods[1].title %>" width="800" height="1000" loading="lazy" data-product-image>
+                    <span><%= prods[1].title %> <%- icon('arrow-up-right') %></span>
+                </a>
+            <% } %>
+
+            <div class="hero__note">
+                <span class="hero__note-mark" aria-hidden="true">“</span>
+                <p>Objects with a quiet point of view.</p>
+                <span class="hero__note-source">The ShopExpress edit</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Shopping with ShopExpress">
+        <div class="trust-strip__item">
+            <span class="trust-strip__icon" aria-hidden="true"><%- icon('truck') %></span>
+            <div>
+                <strong>Complimentary shipping</strong>
+                <span>On every order, always</span>
+            </div>
+        </div>
+        <div class="trust-strip__item">
+            <span class="trust-strip__icon" aria-hidden="true"><%- icon('rotate-ccw') %></span>
+            <div>
+                <strong>30-day returns</strong>
+                <span>Take your time with it</span>
+            </div>
+        </div>
+        <div class="trust-strip__item">
+            <span class="trust-strip__icon" aria-hidden="true"><%- icon('shield-check') %></span>
+            <div>
+                <strong>Secure checkout</strong>
+                <span>Protected sessions</span>
+            </div>
+        </div>
+        <div class="trust-strip__item">
+            <span class="trust-strip__icon" aria-hidden="true"><%- icon('leaf') %></span>
+            <div>
+                <strong>Considered sourcing</strong>
+                <span>Small-batch and deliberate</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" aria-labelledby="edit-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">The edit</p>
+                <h2 id="edit-heading">Objects worth keeping</h2>
+            </div>
+            <a class="text-link" href="/products">View all <%- icon('arrow-right') %></a>
+        </div>
+
+        <% if (prods.length > 0) { %>
+            <div class="product-grid">
+                <% for (let i = 0; i < prods.length; i++) { %>
+                    <%- include('../includes/product-card.ejs', { product: prods[i], index: i }) %>
+                <% } %>
+            </div>
+        <% } else { %>
+            <div class="empty-state empty-state--large">
+                <span class="empty-state__icon" aria-hidden="true"><%- icon('boxes') %></span>
+                <h3>No objects yet</h3>
+                <p>The shelves are being arranged. Check back shortly, or sign in as an admin to add the first product.</p>
+                <div class="empty-state__actions">
+                    <% if (isAdmin) { %>
+                        <a class="btn" href="/admin/add-product">Add a product <%- icon('plus') %></a>
+                    <% } else { %>
+                        <a class="btn" href="/products">Browse the catalog <%- icon('arrow-right') %></a>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+    </section>
+
+    <section class="editorial" aria-labelledby="editorial-heading">
+        <div class="editorial__media">
+            <% if (prods[2]) { %>
+                <img src="<%= prods[2].imageUrl %>" alt="<%= prods[2].title %>" width="800" height="1000" loading="lazy" data-product-image>
+            <% } else { %>
+                <img src="/images/products/arc-task-lamp.jpg" alt="" width="800" height="1000" loading="lazy">
+            <% } %>
+            <span class="editorial__stamp">Est. 2026 · Independent</span>
+        </div>
+        <div class="editorial__body">
+            <p class="eyebrow">A note from the shop</p>
+            <h2 id="editorial-heading">Buy less.<br><em>Keep longer.</em></h2>
+            <p>We started ShopExpress with a simple brief: collect objects that earn their place. No endless aisles, no noise — just a tight edit of lighting, audio, and desk companions that feel as good on day 900 as they do on day one.</p>
+            <ul class="editorial__list">
+                <li>
+                    <span>01</span>
+                    <div><strong>Chosen slowly</strong><p>Every object is considered before it makes the shelf.</p></div>
+                </li>
+                <li>
+                    <span>02</span>
+                    <div><strong>Made to be used</strong><p>Form that helps, not furniture that wants attention.</p></div>
+                </li>
+                <li>
+                    <span>03</span>
+                    <div><strong>Sent with care</strong><p>Simple ordering, complimentary shipping, easy returns.</p></div>
+                </li>
+            </ul>
+            <a class="btn btn--outline" href="/about">Read our approach <%- icon('arrow-right') %></a>
+        </div>
+    </section>
+
+    <section class="section section--values" aria-labelledby="values-heading">
+        <div class="section-heading section-heading--center">
+            <div>
+                <p class="eyebrow">Why ShopExpress</p>
+                <h2 id="values-heading">Details, considered.</h2>
+            </div>
+        </div>
+        <ol class="value-grid">
+            <li class="value-card reveal">
+                <span class="value-card__num" aria-hidden="true">01</span>
+                <span class="value-card__icon" aria-hidden="true"><%- icon('sparkles') %></span>
+                <h3>A tight edit</h3>
+                <p>Fewer, better objects. The catalog stays small on purpose so every piece has a reason to be here.</p>
+            </li>
+            <li class="value-card reveal">
+                <span class="value-card__num" aria-hidden="true">02</span>
+                <span class="value-card__icon" aria-hidden="true"><%- icon('package') %></span>
+                <h3>Ready to ship</h3>
+                <p>Orders leave the studio within two business days, packed simply and shipped on us.</p>
+            </li>
+            <li class="value-card reveal">
+                <span class="value-card__num" aria-hidden="true">03</span>
+                <span class="value-card__icon" aria-hidden="true"><%- icon('headset') %></span>
+                <h3>A real answer</h3>
+                <p>Questions about an object or an order? Our help pages cover the essentials without the runaround.</p>
+            </li>
+        </ol>
+    </section>
+
+    <section class="cta-band" aria-labelledby="cta-heading">
+        <div class="cta-band__body">
+            <p class="eyebrow eyebrow--light">Your shelf, your pace</p>
+            <h2 id="cta-heading">Make it yours.</h2>
+            <p>Create an account to keep your cart, follow your orders, and move through checkout in one quiet step.</p>
+        </div>
+        <div class="cta-band__actions">
+            <% if (isAuthenticated) { %>
+                <a class="btn btn--light" href="/orders">View your orders <%- icon('arrow-right') %></a>
+                <a class="text-link text-link--light" href="/products">Keep browsing <%- icon('arrow-up-right') %></a>
+            <% } else { %>
+                <a class="btn btn--light" href="/signup">Create an account <%- icon('arrow-right') %></a>
+                <a class="text-link text-link--light" href="/login">Already a member? Sign in</a>
+            <% } %>
+        </div>
+    </section>
+</main>
+
+<%- include('../includes/end') %>

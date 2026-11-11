@@ -1,0 +1,105 @@
+<%- include('../includes/head', { bodyClass: 'page-cart', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <header class="page-intro page-intro--compact">
+        <div class="page-intro__main">
+            <p class="eyebrow">Your selection</p>
+            <h1>Your cart</h1>
+            <p class="page-intro__lede">A quiet review of what you’ve chosen. Adjust quantities, remove anything that isn’t right, then place your order.</p>
+        </div>
+        <% if (itemCount > 0) { %>
+            <p class="page-intro__count"><strong><%= itemCount %></strong> <%= itemCount === 1 ? 'item' : 'items' %></p>
+        <% } %>
+    </header>
+
+    <% if (items.length > 0) { %>
+        <div class="cart-layout">
+            <section class="cart-panel" aria-labelledby="cart-items-heading">
+                <h2 class="visually-hidden" id="cart-items-heading">Items in your cart</h2>
+                <ul class="cart-list">
+                    <% items.forEach(function (item) { %>
+                        <% const lineTotal = Number(item.productId.price) * item.quantity; %>
+                        <li class="cart-item">
+                            <a class="cart-item__image" href="/products/<%= item.productId._id %>" tabindex="-1" aria-hidden="true">
+                                <img src="<%= item.productId.imageUrl %>" alt="" width="800" height="1000" data-product-image>
+                            </a>
+                            <div class="cart-item__body">
+                                <p class="cart-item__eyebrow">ShopExpress</p>
+                                <h3 class="cart-item__title"><a href="/products/<%= item.productId._id %>"><%= item.productId.title %></a></h3>
+                                <p class="cart-item__unit"><%= formatPrice(item.productId.price) %> each<% if (item.size) { %> · Size <%= item.size %><% } %></p>
+                                <div class="cart-item__controls">
+                                    <form class="quantity-stepper" action="/cart-update-quantity" method="post">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                                        <input type="hidden" name="size" value="<%= item.size || '' %>">
+                                        <button type="submit" name="delta" value="-1" aria-label="Decrease quantity of <%= item.productId.title %>" <%= item.quantity <= 1 ? 'disabled' : '' %>><%- icon('minus') %></button>
+                                        <span class="quantity-stepper__value" aria-live="polite"><%= item.quantity %></span>
+                                        <button type="submit" name="delta" value="1" aria-label="Increase quantity of <%= item.productId.title %>" <%= item.quantity >= 10 ? 'disabled' : '' %>><%- icon('plus') %></button>
+                                    </form>
+                                    <form action="/cart-delete-item" method="post" data-confirm="Remove “<%= item.productId.title %>” from your cart?">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                                        <input type="hidden" name="size" value="<%= item.size || '' %>">
+                                        <button class="cart-item__remove" type="submit"><%- icon('trash-2') %> Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <p class="cart-item__total"><%= formatPrice(lineTotal) %></p>
+                        </li>
+                    <% }); %>
+                </ul>
+                <div class="cart-panel__foot">
+                    <a class="text-link" href="/products"><%- icon('arrow-left') %> Continue shopping</a>
+                    <p>All prices are in USD.</p>
+                </div>
+            </section>
+
+            <aside class="order-summary" aria-labelledby="summary-heading">
+                <div class="order-summary__eyebrow"><span aria-hidden="true"></span> Order summary</div>
+                <h2 id="summary-heading">Almost yours.</h2>
+                <dl class="order-summary__list">
+                    <div>
+                        <dt>Items <span>(<%= itemCount %>)</span></dt>
+                        <dd><%= formatPrice(total) %></dd>
+                    </div>
+                    <div>
+                        <dt>Shipping</dt>
+                        <dd class="order-summary__free">Complimentary</dd>
+                    </div>
+                    <div class="order-summary__total">
+                        <dt>Total</dt>
+                        <dd><%= formatPrice(total) %></dd>
+                    </div>
+                </dl>
+
+                <form action="/create-order" method="post" data-confirm="Place this order now? Your cart will be emptied.">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn--lg btn--block" type="submit">
+                        <span class="btn__label">Place order</span>
+                        <%- icon('arrow-right') %>
+                    </button>
+                </form>
+
+                <p class="order-summary__note"><%- icon('shield-check') %> No payment details are collected. Placing an order records it in your account history.</p>
+                <div class="order-summary__help">
+                    <p>Questions before you order?</p>
+                    <a class="text-link" href="/help">Visit help &amp; information <%- icon('arrow-right') %></a>
+                </div>
+            </aside>
+        </div>
+    <% } else { %>
+        <div class="empty-state empty-state--large">
+            <span class="empty-state__icon" aria-hidden="true"><%- icon('shopping-bag') %></span>
+            <h2>Your cart is empty</h2>
+            <p>Nothing here yet. The catalog is small, but there’s probably something that belongs on your shelf.</p>
+            <div class="empty-state__actions">
+                <a class="btn" href="/products">Browse the collection <%- icon('arrow-right') %></a>
+                <a class="btn btn--ghost" href="/about">Why ShopExpress?</a>
+            </div>
+        </div>
+    <% } %>
+</main>
+
+<%- include('../includes/end') %>

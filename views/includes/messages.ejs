@@ -1,0 +1,18 @@
+<%
+    const alertMessage =
+        (typeof errorMessage !== 'undefined' && errorMessage) ||
+        (typeof successMessage !== 'undefined' && successMessage) ||
+        flashMessage;
+    const alertType =
+        (typeof errorMessage !== 'undefined' && errorMessage) ? 'error' :
+        (typeof successMessage !== 'undefined' && successMessage) ? 'success' :
+        (flashType || 'info');
+    const alertIcon = alertType === 'success' ? 'circle-check' : alertType === 'error' ? 'circle-alert' : alertType === 'warning' ? 'triangle-alert' : 'info';
+%>
+<% if (alertMessage) { %>
+<div class="alert alert--<%= alertType %>" role="<%= alertType === 'error' ? 'alert' : 'status' %>" data-alert>
+    <span class="alert__icon" aria-hidden="true"><%- icon(alertIcon) %></span>
+    <p class="alert__message"><%= alertMessage %></p>
+    <button class="alert__close" type="button" data-alert-close aria-label="Dismiss message"><%- icon('x') %></button>
+</div>
+<% } %>

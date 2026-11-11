@@ -1,0 +1,97 @@
+<%- include('../includes/head', { bodyClass: 'page-catalog', pageStyles: ['/css/shop.css'] }) %>
+
+<main id="main-content">
+    <%- include('../includes/messages.ejs') %>
+
+    <header class="page-intro">
+        <div class="page-intro__main">
+            <p class="eyebrow">The catalog</p>
+            <h1>All objects</h1>
+            <p class="page-intro__lede">A tight edit of lighting, audio, desk objects, and everyday essentials — each one chosen to be used, not just owned.</p>
+        </div>
+        <p class="page-intro__count"><strong><%= prods.length %></strong> <%= prods.length === 1 ? 'object' : 'objects' %> <% if (catalog.hasFilters) { %><span>after filters</span><% } %></p>
+    </header>
+
+    <section class="catalog-tools" aria-label="Search and filter products">
+        <form class="catalog-form" action="/products" method="get" data-auto-filter>
+            <div class="field field--search">
+                <label class="visually-hidden" for="catalog-search">Search the catalog</label>
+                <span class="field__icon" aria-hidden="true"><%- icon('search') %></span>
+                <input id="catalog-search" name="q" type="search" value="<%= catalog.search %>" placeholder="Search objects…" autocomplete="off">
+                <% if (catalog.search) { %>
+                    <a class="field__clear" href="/products?sort=<%= catalog.sort %><% if (catalog.price) { %>&amp;price=<%= catalog.price %><% } %>" aria-label="Clear search">
+                        <%- icon('x') %>
+                    </a>
+                <% } %>
+            </div>
+
+            <div class="field field--select">
+                <label for="catalog-sort">Sort</label>
+                <div class="select-wrap">
+                    <select id="catalog-sort" name="sort">
+                        <% catalog.sortOptions.forEach(function (option) { %>
+                            <option value="<%= option.value %>" <%= catalog.sort === option.value ? 'selected' : '' %>><%= option.label %></option>
+                        <% }); %>
+                    </select>
+                    <span class="select-wrap__icon" aria-hidden="true"><%- icon('chevron-down') %></span>
+                </div>
+            </div>
+
+            <div class="field field--select">
+                <label for="catalog-price">Price</label>
+                <div class="select-wrap">
+                    <select id="catalog-price" name="price">
+                        <% catalog.priceOptions.forEach(function (option) { %>
+                            <option value="<%= option.value %>" <%= catalog.price === option.value ? 'selected' : '' %>><%= option.label %></option>
+                        <% }); %>
+                    </select>
+                    <span class="select-wrap__icon" aria-hidden="true"><%- icon('chevron-down') %></span>
+                </div>
+            </div>
+
+            <button class="btn btn--outline catalog-form__submit" type="submit">Apply filters</button>
+        </form>
+
+        <div class="catalog-summary">
+            <p>
+                <% if (catalog.search) { %>
+                    Results for <strong>“<%= catalog.search %>”</strong>
+                <% } else { %>
+                    Showing the complete collection
+                <% } %>
+                <% if (catalog.price) { %>
+                    <% for (const option of catalog.priceOptions) { %>
+                        <% if (option.value === catalog.price) { %><span class="catalog-summary__filter"><%= option.label %></span><% } %>
+                    <% } %>
+                <% } %>
+            </p>
+            <% if (catalog.hasFilters) { %>
+                <a class="text-link" href="/products">Clear all <%- icon('x') %></a>
+            <% } %>
+        </div>
+    </section>
+
+    <% if (prods.length > 0) { %>
+        <div class="product-grid product-grid--catalog">
+            <% for (let i = 0; i < prods.length; i++) { %>
+                <%- include('../includes/product-card.ejs', { product: prods[i], index: i }) %>
+            <% } %>
+        </div>
+    <% } else { %>
+        <div class="empty-state empty-state--large">
+            <span class="empty-state__icon" aria-hidden="true"><%- icon('search') %></span>
+            <h2>No objects match that search</h2>
+            <p>Try a broader term, or reset the filters to see the full collection.</p>
+            <div class="empty-state__actions">
+                <a class="btn" href="/products">Clear filters <%- icon('refresh-cw') %></a>
+            </div>
+        </div>
+    <% } %>
+
+    <aside class="catalog-footnote">
+        <span class="catalog-footnote__icon" aria-hidden="true"><%- icon('truck') %></span>
+        <p><strong>Shipping is on us.</strong> Every order, every address, no minimum. <a href="/help#shipping">Read the details</a>.</p>
+    </aside>
+</main>
+
+<%- include('../includes/end') %>

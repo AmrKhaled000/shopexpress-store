@@ -1,0 +1,59 @@
+<%- include('../includes/head', { bodyClass: 'page-auth', pageStyles: ['/css/auth.css'] }) %>
+
+<main id="main-content" class="auth-main">
+    <div class="auth-shell">
+        <%- include('../includes/auth-aside.ejs') %>
+
+        <section class="auth-panel" aria-labelledby="login-heading">
+            <div class="auth-card">
+                <div class="auth-card__header">
+                    <p class="eyebrow">Welcome back</p>
+                    <h1 id="login-heading">Sign in to your account</h1>
+                    <p>Your cart and order history are waiting exactly where you left them.</p>
+                </div>
+
+                <%- include('../includes/messages.ejs') %>
+
+                <form class="auth-form" action="/login" method="POST" data-validate novalidate>
+                    <div class="form-field <%= validationErrors.email ? 'is-invalid' : '' %>">
+                        <label for="email">Email address</label>
+                        <div class="input-wrap">
+                            <span class="input-wrap__icon" aria-hidden="true"><%- icon('mail') %></span>
+                            <input type="email" name="email" id="email" placeholder="you@example.com" value="<%= form.email %>" autocomplete="email" required <%= validationErrors.email ? 'aria-invalid="true" aria-describedby="email-error"' : '' %>>
+                        </div>
+                        <p class="field-error" id="email-error"><%= validationErrors.email || 'Enter a valid email address.' %></p>
+                    </div>
+
+                    <div class="form-field <%= validationErrors.password ? 'is-invalid' : '' %>">
+                        <div class="form-label-row">
+                            <label for="password">Password</label>
+                            <a class="form-label-row__link" href="/reset">Forgot password?</a>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-wrap__icon" aria-hidden="true"><%- icon('lock-keyhole') %></span>
+                            <input type="password" name="password" id="password" placeholder="Your password" autocomplete="current-password" required <%= validationErrors.password ? 'aria-invalid="true" aria-describedby="password-error"' : '' %>>
+                            <button class="password-toggle" type="button" data-password-toggle aria-label="Show password" aria-pressed="false">
+                                <span data-password-show aria-hidden="true"><%- icon('eye') %></span>
+                                <span data-password-hide aria-hidden="true" hidden><%- icon('eye-off') %></span>
+                            </button>
+                        </div>
+                        <p class="field-error" id="password-error"><%= validationErrors.password || 'Enter your password.' %></p>
+                    </div>
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn--lg btn--block" type="submit">
+                        <span class="btn__label">Sign in</span>
+                        <%- icon('arrow-right') %>
+                    </button>
+                </form>
+
+                <div class="auth-card__footer">
+                    <p>New to ShopExpress? <a href="/signup">Create an account</a></p>
+                    <p class="auth-card__fineprint"><%- icon('shield-check') %> Your details stay private and your session is protected.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<%- include('../includes/end') %>
