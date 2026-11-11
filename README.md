@@ -120,7 +120,7 @@ public/css/                main, shop, auth, admin styles
 public/js/                 theme bootstrap and interactions
 public/fonts/              self-hosted Inter and Fraunces + OFL licenses
 public/icons/              Lucide sprite + ISC license
-public/images/products/    ten product illustrations
+public/images/products/    ten product photographs (Unsplash)
 scripts/seed.js            development seed
 scripts/check-syntax.js    JS + EJS syntax check
 tests/                     node:test unit tests
@@ -159,7 +159,7 @@ There is no ESLint configuration in this repository; `npm run check` is the buil
 
 ## Credits
 
-- Product illustrations were created for this project as vector artwork.
+- Product photographs are sourced from Unsplash and committed to the repository under `public/images/products/`.
 - [Inter](https://github.com/rsms/inter) and [Fraunces](https://github.com/undercasetype/Fraunces) are licensed under the SIL Open Font License; license files are included in `public/fonts/`.
 - [Lucide](https://lucide.dev) icons are licensed under the ISC License; the license is included in `public/icons/`.
 - The project is released under the ISC License; see [`LICENSE`](LICENSE).
