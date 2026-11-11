@@ -37,6 +37,9 @@ if (!SESSION_SECRET) {
 const app = express();
 
 app.disable('x-powered-by');
+// Render/Heroku-style proxies terminate TLS and forward over plain HTTP.
+// Trusting the first proxy hop lets `secure` session cookies work correctly.
+app.set('trust proxy', 1);
 
 // Security and privacy headers -------------------------------------------------
 app.use((req, res, next) => {

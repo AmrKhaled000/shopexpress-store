@@ -140,9 +140,22 @@ There is no ESLint configuration in this repository; `npm run check` is the buil
 
 ## Deployment notes
 
+### Render (one-click)
+
+The repository ships a [`render.yaml`](render.yaml) blueprint, so deploying is mostly clicking through prompts:
+
+1. Create a free account at [render.com](https://render.com) and sign in.
+2. **New → Blueprint** → pick the `AmrKhaled000/shopexpress-store` GitHub repository. Render reads `render.yaml` and shows a summary of the web service.
+3. Fill in the prompted secrets: `MONGODB_URI` (your Atlas SRV URI ending in `/shopexpress`), `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `EMAIL_USER`, `EMAIL_PASS` (Google App Password), `MAIL_FROM`, and `APP_URL` (e.g. `https://shopexpress-store.onrender.com`). `SESSION_SECRET` is generated automatically.
+4. Deploy. In the Atlas dashboard → **Network Access**, allow `0.0.0.0/0` (or the proxy IPs) — Render's outbound IPs are not static on the free plan, so a private allowlist will refuse the connection.
+5. Wait for the first deploy (the free tier also sleeps after 15 minutes of inactivity and cold-starts in ~30–60 s). Your storefront is live at the `*.onrender.com` URL.
+6. `npm run seed` is not required on deploy: the Atlas database already holds the catalog, the admin, the demo customer, and the sample order.
+
+General production notes:
+
 1. Provision MongoDB and set `MONGODB_URI`. The default local fallback is deliberately disabled for production startup.
 2. Set a strong `SESSION_SECRET` and `NODE_ENV=production`.
-3. Run behind HTTPS. Production cookies are marked `secure`, so login will not persist over plain HTTP.
+3. Run behind HTTPS. Production cookies are marked `secure`, so login will not persist over plain HTTP; the app trusts the first proxy hop (`trust proxy`) for this to work behind Render/Heroku-style proxies.
 4. Set `APP_URL` to the public origin for email links.
 5. Set `EMAIL_USER` and `EMAIL_PASS` (Gmail App Password) if you want welcome/reset/order-confirmation email delivery; the app otherwise works without it.
 6. Start with `npm start`. Sessions and carts are stored in MongoDB, so the app is stateless apart from the database.

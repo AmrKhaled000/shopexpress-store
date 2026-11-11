@@ -1,0 +1,38 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# One-click deploy: Render reads this file when you create a new Blueprint
+# from the GitHub repository. Secrets are prompted for at creation time and
+# are never committed to the repository.
+services:
+  - type: web
+    name: shopexpress-store
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # prompted at creation — use your Atlas SRV URI with /shopexpress
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "465"
+      - key: EMAIL_SECURE
+        value: "true"
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false # Google App Password
+      - key: MAIL_FROM
+        sync: false
+      - key: APP_URL
+        sync: false # e.g. https://shopexpress-store.onrender.com
