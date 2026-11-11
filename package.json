@@ -2,11 +2,11 @@
   "name": "shopexpress",
   "version": "2.0.0",
   "description": "ShopExpress — a considered e-commerce storefront built with Express, EJS, and MongoDB.",
-  "main": "app.js",
+  "main": "server.js",
   "private": true,
   "scripts": {
-    "start": "node --env-file-if-exists=.env app.js",
-    "dev": "node --watch --env-file-if-exists=.env app.js",
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js",
     "seed": "node --env-file-if-exists=.env scripts/seed.js",
     "check": "node scripts/check-syntax.js",
     "test": "node tests/run.js"
