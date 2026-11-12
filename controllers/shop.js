@@ -32,14 +32,7 @@ exports.getIndex = async (req, res, next) => {
       return;
     }
 
-    res.render('shop/index', {
-      prods: firstPage,
-      totalProducts,
-      pageTitle: 'Considered goods for everyday living',
-      pageDescription:
-        'ShopExpress is a small catalog of considered objects — lighting, audio, and everyday tools made to be kept.',
-      path: '/'
-    });
+    res.send('probe world');
   } catch (error) {
     next(error);
   }
