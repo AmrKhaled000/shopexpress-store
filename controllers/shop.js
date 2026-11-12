@@ -17,8 +17,11 @@ function renderProductNotFound(res) {
 
 exports.getIndex = async (req, res, next) => {
   try {
-    const firstPage = await Product.find().sort({ _id: -1 }).limit(8);
-    const totalProducts = await Product.countDocuments();
+    const catalog = parseCatalogQuery({});
+    const firstPage = await Product.find(buildProductQuery(catalog))
+      .sort(buildProductSort(catalog.sort))
+      .limit(8);
+    const totalProducts = await Product.countDocuments(buildProductQuery(catalog));
 
     res.render('shop/index', {
       prods: firstPage,
