@@ -33,13 +33,25 @@ module.exports = async (req, res) => {
 
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
-      await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
-      const Product = require('../models/product');
-      const products = await Product.find().sort({ _id: -1 }).limit(2).exec();
-      const count = await Product.countDocuments();
-      res.statusCode = 200;
-      res.setHeader('content-type', 'text/plain');
-      res.end(`debug ok: count=${count}, first=${products[0] ? products[0].title : 'none'}`);
+      const shop = require('../controllers/shop');
+      await new Promise((resolve, reject) => {
+        const fakeReq = { query: {}, params: {}, user: null, sessionID: 'debug', session: {}, flash: () => [], body: {}, cookies: {}, headers: {} };
+        const fakeRes = {
+          render: (view, locals, cb) => {
+            res.setHeader('content-type', 'text/plain');
+            if (locals && locals.prods) return res.end('render ok: prods=' + locals.prods.length + ', first=' + (locals.prods[0] && locals.prods[0].title));
+            return res.end('render called without prods: ' + JSON.stringify(Object.keys(locals || {})));
+          },
+          setHeader: () => {},
+          set: () => {},
+          status: () => fakeRes,
+          redirect: (url) => { res.setHeader('content-type', 'text/plain'); res.end('redirect: ' + url); },
+          send: (b) => { res.end(String(b).slice(0, 1500)); },
+          end: (b) => { res.end(String(b).slice(0, 1500)); }
+        };
+        fakeRes.next = reject;
+        shop.getIndex(fakeReq, fakeRes, reject);
+      });
     } catch (error) {
       res.statusCode = 500;
       res.setHeader('content-type', 'text/plain');
