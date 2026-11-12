@@ -43,7 +43,6 @@ app.set('trust proxy', 1);
 
 // Security and privacy headers -------------------------------------------------
 app.use((req, res, next) => {
-  res.setHeader('X-Probe', 'yes');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -205,11 +204,6 @@ app.use((error, req, res, next) => {
   console.error(error);
   if (res.headersSent) {
     return next(error);
-  }
-  if (String(req.query && req.query.debug) === '1') {
-    res.status(500);
-    res.setHeader('content-type', 'text/plain; charset=utf-8');
-    return res.end('DEBUG_ERROR:\n' + String((error && (error.stack || error.message)) || 'unknown'));
   }
   res.status(500).render('500', {
     pageTitle: 'Server Error',
