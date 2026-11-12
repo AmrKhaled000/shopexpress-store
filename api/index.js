@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.error('[vercel] Database connection failed:', error.message);
     res.statusCode = 503;
-    res.end('ShopExpress is temporarily unavailable.');
+    res.end('ShopExpress is temporarily unavailable. ' + String(error.message).slice(0, 300));
     return;
   }
   return app(req, res);
