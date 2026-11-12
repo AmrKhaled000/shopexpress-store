@@ -34,17 +34,25 @@ module.exports = async (req, res) => {
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
       await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
-      const t0 = Date.now();
-      const Product = require('../models/product');
-      const [products, totalProducts] = await Promise.all([
-        Product.find().sort({ _id: -1 }).limit(8),
-        Product.countDocuments()
-      ]);
-      res.statusCode = 200;
+      const shop = require('../controllers/shop');
+      const result = await new Promise((resolve, reject) => {
+        const fakeReq = { query: {}, params: {}, user: null, sessionID: 'debug', session: {}, flash: () => [], body: {}, cookies: {}, headers: {} };
+        const fakeRes = {
+          render: (view, locals, cb) => {
+            resolve('render called view=' + view + ' prods=' + (locals && locals.prods && locals.prods.length));
+          },
+          setHeader: () => {},
+          set: () => {},
+          status: () => fakeRes,
+          redirect: (u) => { resolve('redirect ' + u); },
+          send: (b) => { resolve('send ' + String(b).slice(0, 300)); },
+          end: (b) => { resolve('end ' + String(b).slice(0, 300)); }
+        };
+        fakeRes.next = reject;
+        shop.getIndex(fakeReq, fakeRes, reject);
+      });
       res.setHeader('content-type', 'text/plain');
-      res.end(
-        'query ok: ms=' + (Date.now() - t0) + ', products=' + products.length + ', total=' + totalProducts
-      );
+      res.end(String(result));
     } catch (error) {
       res.statusCode = 500;
       res.setHeader('content-type', 'text/plain');
