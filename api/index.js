@@ -33,6 +33,7 @@ module.exports = async (req, res) => {
 
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
+      await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
       const shop = require('../controllers/shop');
       await new Promise((resolve, reject) => {
         const fakeReq = { query: {}, params: {}, user: null, sessionID: 'debug', session: {}, flash: () => [], body: {}, cookies: {}, headers: {} };
