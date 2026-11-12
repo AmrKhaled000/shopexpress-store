@@ -30,6 +30,24 @@ module.exports = async (req, res) => {
     res.end('ShopExpress is temporarily unavailable.');
     return;
   }
+
+  if (String(req.url || '').startsWith('/_error-debug')) {
+    try {
+      await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
+      const Product = require('../models/product');
+      const products = await Product.find().sort({ _id: -1 }).limit(2).exec();
+      const count = await Product.countDocuments();
+      res.statusCode = 200;
+      res.setHeader('content-type', 'text/plain');
+      res.end(`debug ok: count=${count}, first=${products[0] ? products[0].title : 'none'}`);
+    } catch (error) {
+      res.statusCode = 500;
+      res.setHeader('content-type', 'text/plain');
+      res.end('debug caught: ' + (error && (error.stack || error.message)));
+    }
+    return;
+  }
+
   try {
     await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
   } catch (error) {
