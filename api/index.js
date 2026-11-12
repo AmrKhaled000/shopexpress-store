@@ -12,7 +12,17 @@
  */
 
 const mongoose = require('mongoose');
-const app = require('../app');
+let app;
+try {
+  app = require('../app');
+} catch (error) {
+  const failing = error;
+  module.exports = async (req, res) => {
+    res.statusCode = 500;
+    res.end('boot failed: ' + String(failing && (failing.stack || failing.message)).slice(0, 1500));
+  };
+  return;
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGOOSE_OPTIONS = {
