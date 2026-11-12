@@ -3,14 +3,9 @@
 /**
  * Vercel serverless entry point.
  *
- * vercel.json routes all non-file requests to this function. Static files in
- * `public/` are served by Vercel's CDN (filesystem takes precedence over the
- * rewrite), so only application requests hit this handler.
- *
- * Mongoose connections do not survive Vercel's freeze/thaw cycle — a cached
- * connection looks alive (readyState 1) but its sockets are dead and every
- * operation buffers until timeout. The safe pattern is a fresh connection
- * per invocation.
+ * The right pattern on Vercel is to cache the connection ONCE per lambda,
+ * check mongoose.connection.readyState before reusing it, and fail fast
+ * instead of buffering when the socket is dead (freeze/thaw cycle).
  */
 
 const mongoose = require('mongoose');
@@ -20,65 +15,57 @@ const MONGODB_URI = process.env.MONGODB_URI;
 const MONGOOSE_OPTIONS = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 15000
+  serverSelectionTimeoutMS: 20000,
+  bufferCommands: false
 };
+const MAX_CONNECT_ATTEMPTS = 4;
+
+let cached = global.__shopexpressDb;
+if (!cached) {
+  cached = global.__shopexpressDb = { conn: null, promise: null };
+}
+
+async function ensureDatabase() {
+  if (cached.conn && mongoose.connection.readyState === 1) {
+    return cached.conn;
+  }
+  if (!cached.promise) {
+    cached.promise = connectWithRetry().catch(error => {
+      cached.promise = null; // next request gets another attempt
+      throw error;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+function connectWithRetry(attempt = 1) {
+  if (mongoose.connection.readyState === 1) {
+    return Promise.resolve(mongoose);
+  }
+  return mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS).catch(error => {
+    if (attempt >= MAX_CONNECT_ATTEMPTS) {
+      throw error;
+    }
+    console.warn(`[vercel] database connection attempt ${attempt} failed (${error.message}); retrying…`);
+    return new Promise(resolve => setTimeout(resolve, 1500)).then(() => connectWithRetry(attempt + 1));
+  });
+}
 
 module.exports = async (req, res) => {
   if (!MONGODB_URI) {
     console.error('[vercel] MONGODB_URI is not set');
     res.statusCode = 503;
+    res.setHeader('content-type', 'text/plain');
     res.end('ShopExpress is temporarily unavailable.');
     return;
   }
-
-  if (String(req.url || '').startsWith('/_probe/find')) {
-    try {
-      await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
-      const Product = require('../models/product');
-      const t0 = Date.now();
-      const [products, totalProducts] = await Promise.all([
-        Product.find().sort({ _id: -1 }).limit(8),
-        Product.countDocuments()
-      ]);
-      res.setHeader('content-type', 'text/plain');
-      res.end('find ok: ' + (Date.now() - t0) + 'ms, products=' + products.length + ', total=' + totalProducts);
-    } catch (error) {
-      res.statusCode = 500;
-      res.setHeader('content-type', 'text/plain');
-      res.end('find FAIL: ' + (error && (error.stack || error.message)));
-    }
-    return;
-  }
-
-  if (String(req.url || '').startsWith('/_error-debug')) {
-    try {
-      const fs = require('fs');
-      const cwd = process.cwd();
-      const listing = {};
-      for (const p of ['.', 'views', 'public', 'public/css', 'views/shop']) {
-        try {
-          const resolved = require('path').resolve(cwd, p);
-          const exists = fs.existsSync(resolved);
-          listing[p] = exists ? (fs.statSync(resolved).isDirectory() ? fs.readdirSync(resolved).slice(0, 40) : fs.statSync(resolved).size + 'b') : 'MISSING';
-        } catch (e) {
-          listing[p] = 'ERROR: ' + e.message;
-        }
-      }
-      res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ cwd, listing }, null, 2));
-    } catch (error) {
-      res.statusCode = 500;
-      res.setHeader('content-type', 'text/plain');
-      res.end('debug caught: ' + (error && (error.stack || error.message)));
-    }
-    return;
-  }
-
   try {
-    await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
+    await ensureDatabase();
   } catch (error) {
     console.error('[vercel] Database connection failed:', error.stack || error.message);
     res.statusCode = 503;
+    res.setHeader('content-type', 'text/plain');
     res.end('ShopExpress is temporarily unavailable.');
     return;
   }
