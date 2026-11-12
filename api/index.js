@@ -34,25 +34,27 @@ module.exports = async (req, res) => {
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
       await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
-      const shop = require('../controllers/shop');
-      await new Promise((resolve, reject) => {
-        const fakeReq = { query: {}, params: {}, user: null, sessionID: 'debug', session: {}, flash: () => [], body: {}, cookies: {}, headers: {} };
-        const fakeRes = {
-          render: (view, locals, cb) => {
-            res.setHeader('content-type', 'text/plain');
-            if (locals && locals.prods) return res.end('render ok: prods=' + locals.prods.length + ', first=' + (locals.prods[0] && locals.prods[0].title));
-            return res.end('render called without prods: ' + JSON.stringify(Object.keys(locals || {})));
-          },
-          setHeader: () => {},
-          set: () => {},
-          status: () => fakeRes,
-          redirect: (url) => { res.setHeader('content-type', 'text/plain'); res.end('redirect: ' + url); },
-          send: (b) => { res.end(String(b).slice(0, 1500)); },
-          end: (b) => { res.end(String(b).slice(0, 1500)); }
-        };
-        fakeRes.next = reject;
-        shop.getIndex(fakeReq, fakeRes, reject);
-      });
+      const Product = require('../models/product');
+      const t0 = Date.now();
+      const db = mongoose.connection.db;
+      const raw = await db.collection('products').countDocuments();
+      const trace = ['raw count=' + raw + ' ms=' + (Date.now() - t0)];
+      try {
+        const docs = await mongoose.connection.db.collection('products').find({}).limit(2).toArray();
+        trace.push('raw find ok docs=' + docs.length);
+      } catch (e) {
+        trace.push('raw find FAIL: ' + (e && e.message));
+      }
+      try {
+        const qr = Date.now();
+        const count = await Product.countDocuments();
+        trace.push('model count=' + count + ' ms=' + (Date.now() - qr));
+      } catch (e) {
+        trace.push('model count FAIL: ' + (e && e.message));
+      }
+      res.statusCode = 200;
+      res.setHeader('content-type', 'text/plain');
+      res.end(trace.join('\n'));
     } catch (error) {
       res.statusCode = 500;
       res.setHeader('content-type', 'text/plain');
