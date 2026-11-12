@@ -1,55 +1,67 @@
 'use strict';
 
+/**
+ * Vercel serverless entry point.
+ *
+ * vercel.json routes all non-file requests to this function. Static files in
+ * `public/` are served by Vercel's CDN (filesystem takes precedence over the
+ * rewrite), so only application requests hit this handler.
+ *
+ * Serverless instances are reused for many invocations but must reconnect to
+ * MongoDB after cold starts — the connection is cached on the global object.
+ */
+
 const mongoose = require('mongoose');
+const app = require('../app');
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const OPTS = {
+const MONGOOSE_OPTIONS = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 8000
+  serverSelectionTimeoutMS: 15000
 };
+const MAX_CONNECT_ATTEMPTS = 4;
+
+let cached = global.__shopexpressMongoose;
+if (!cached) {
+  cached = global.__shopexpressMongoose = { conn: null, promise: null };
+}
+
+async function ensureDatabase() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+  if (!cached.promise) {
+    if (!MONGODB_URI) {
+      throw new Error('MONGODB_URI is required in this environment (see README).');
+    }
+    cached.promise = connectWithRetry().catch(error => {
+      cached.promise = null; // allow the next request to retry
+      throw error;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+function connectWithRetry(attempt = 1) {
+  return mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS).catch(error => {
+    if (attempt >= MAX_CONNECT_ATTEMPTS) {
+      throw error;
+    }
+    console.warn(`[vercel] database connection attempt ${attempt} failed (${error.message}); retrying…`);
+    return new Promise(resolve => setTimeout(resolve, 1000)).then(() => connectWithRetry(attempt + 1));
+  });
+}
 
 module.exports = async (req, res) => {
-  const trace = [];
-  const t0 = Date.now();
-  const step = (name, fn) => {
-    try {
-      const value = fn();
-      trace.push(`${name}: OK`);
-      return value;
-    } catch (error) {
-      trace.push(`${name}: FAIL — ${error && error.stack ? error.stack.split('\n')[0] : error}`);
-      return null;
-    }
-  };
-
-  step('MONGODB_URI set', () => {
-    if (!MONGODB_URI) throw new Error('missing');
-    trace.push('URI host: ' + (MONGODB_URI || '').split('@')[1]?.split('/')[0]);
-    return true;
-  });
-
-  if (MONGODB_URI) {
-    try {
-      const timer = new Promise((resolve, reject) =>
-        setTimeout(() => reject(new Error('connect timeout after 12s')), 12000)
-      );
-      await Promise.race([mongoose.connect(MONGODB_URI, OPTS), timer]);
-      trace.push(`connected in ${Date.now() - t0}ms; readyState=${mongoose.connection.readyState}; host=${mongoose.connection.host}`);
-      const count = await mongoose.connection.db.collection('products').countDocuments();
-      trace.push(`products: ${count}`);
-    } catch (error) {
-      trace.push(`connect FAIL (${Date.now() - t0}ms): ${error && (error.name + ' — ' + error.message)}`);
-    } finally {
-      try {
-        await mongoose.disconnect();
-      } catch (disconnectError) {
-        trace.push(`disconnect FAIL: ${disconnectError && disconnectError.message}`);
-      }
-    }
+  try {
+    await ensureDatabase();
+  } catch (error) {
+    console.error('[vercel] Database connection failed:', error.stack || error.message);
+    res.statusCode = 503;
+    res.end('ShopExpress is temporarily unavailable.');
+    return;
   }
-
-  res.statusCode = 200;
-  res.setHeader('content-type', 'text/plain');
-  res.end(trace.join('\n'));
+  return app(req, res);
 };
