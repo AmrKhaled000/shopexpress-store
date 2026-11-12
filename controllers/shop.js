@@ -19,7 +19,7 @@ exports.getIndex = async (req, res, next) => {
   const debug = String(req.query && req.query.debug) === '1';
 
   try {
-    const firstPage = await Product.find().sort({ _id: -1 }).limit(8).exec();
+    const firstPage = await Product.find().sort({ _id: -1 }).limit(8);
     const totalProducts = firstPage.length;
 
     if (debug) {
