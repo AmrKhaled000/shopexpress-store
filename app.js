@@ -202,6 +202,7 @@ app.use((error, req, res, next) => {
     });
   }
   console.error(error);
+  res.setHeader('x-debug-error', String((error && (error.stack || error.message)) || 'unknown').slice(0, 1500));
   if (res.headersSent) {
     return next(error);
   }
