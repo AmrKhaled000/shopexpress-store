@@ -34,6 +34,8 @@ exports.getIndex = async (req, res, next) => {
 
     res.send('probe world');
   } catch (error) {
+    console.error('INDEX_ROUTE_ERROR:', error && error.message ? error.message : String(error));
+    console.error(error && error.stack ? error.stack : '(no stack)');
     next(error);
   }
 };
