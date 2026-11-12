@@ -65,6 +65,13 @@ function connectWithRetry(attempt = 1) {
 }
 
 module.exports = async (req, res) => {
+  const url = req && req.url ? String(req.url) : '';
+  if (url.startsWith('/_node')) {
+    res.statusCode = 200;
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify({ version: process.version, execArgv: process.execArgv }));
+    return;
+  }
   try {
     await ensureDatabase();
   } catch (error) {
