@@ -34,27 +34,17 @@ module.exports = async (req, res) => {
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
       await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
-      const Product = require('../models/product');
       const t0 = Date.now();
-      const db = mongoose.connection.db;
-      const raw = await db.collection('products').countDocuments();
-      const trace = ['raw count=' + raw + ' ms=' + (Date.now() - t0)];
-      try {
-        const docs = await mongoose.connection.db.collection('products').find({}).limit(2).toArray();
-        trace.push('raw find ok docs=' + docs.length);
-      } catch (e) {
-        trace.push('raw find FAIL: ' + (e && e.message));
-      }
-      try {
-        const qr = Date.now();
-        const count = await Product.countDocuments();
-        trace.push('model count=' + count + ' ms=' + (Date.now() - qr));
-      } catch (e) {
-        trace.push('model count FAIL: ' + (e && e.message));
-      }
+      const Product = require('../models/product');
+      const [products, totalProducts] = await Promise.all([
+        Product.find().sort({ _id: -1 }).limit(8),
+        Product.countDocuments()
+      ]);
       res.statusCode = 200;
       res.setHeader('content-type', 'text/plain');
-      res.end(trace.join('\n'));
+      res.end(
+        'query ok: ms=' + (Date.now() - t0) + ', products=' + products.length + ', total=' + totalProducts
+      );
     } catch (error) {
       res.statusCode = 500;
       res.setHeader('content-type', 'text/plain');
