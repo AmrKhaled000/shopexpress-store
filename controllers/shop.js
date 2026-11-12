@@ -16,23 +16,8 @@ function renderProductNotFound(res) {
 }
 
 exports.getIndex = async (req, res, next) => {
-  const debug = String(req.query && req.query.debug) === '1';
-
   try {
-    const firstPage = await Product.find().sort({ _id: -1 }).limit(8);
-    const totalProducts = firstPage.length;
-
-    if (debug) {
-      res.status(200).json({
-        ok: true,
-        totalProducts,
-        first: firstPage[0] ? firstPage[0].title : null,
-        prods: firstPage.length
-      });
-      return;
-    }
-
-    res.send('probe world');
+    res.status(200).json({ probe: true, time: Date.now() });
   } catch (error) {
     console.error('INDEX_ROUTE_ERROR:', error && error.message ? error.message : String(error));
     console.error(error && error.stack ? error.stack : '(no stack)');
