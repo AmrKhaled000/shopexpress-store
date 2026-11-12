@@ -16,11 +16,21 @@ function renderProductNotFound(res) {
 }
 
 exports.getIndex = (req, res, next) => {
+  const debug = String(req.query && req.query.debug) === '1';
+
   Promise.all([
     Product.find().sort({ _id: -1 }).limit(8),
     Product.countDocuments()
   ])
     .then(([products, totalProducts]) => {
+      if (debug) {
+        return res.json({
+          ok: true,
+          totalProducts,
+          first: products[0] ? products[0].title : null,
+          prods: products.length
+        });
+      }
       res.render('shop/index', {
         prods: products,
         totalProducts,
