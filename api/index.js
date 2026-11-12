@@ -1,56 +1,31 @@
 'use strict';
 
-const mongoose = require('mongoose');
-const app = require('../app');
-
-const MONGODB_URI = process.env.MONGODB_URI;
-const MONGOOSE_OPTIONS = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 15000
-};
-const MAX_CONNECT_ATTEMPTS = 4;
-
-let cached = global.__shopexpressMongoose;
-if (!cached) {
-  cached = global.__shopexpressMongoose = { conn: null, promise: null };
-}
-
-async function ensureDatabase() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-  if (!cached.promise) {
-    if (!MONGODB_URI) {
-      throw new Error('MONGODB_URI is required in this environment (see README).');
-    }
-    cached.promise = connectWithRetry().catch(error => {
-      cached.promise = null; // allow the next request to retry
-      throw error;
-    });
-  }
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
-
-function connectWithRetry(attempt = 1) {
-  return mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS).catch(error => {
-    if (attempt >= MAX_CONNECT_ATTEMPTS) {
-      throw error;
-    }
-    console.warn(`[vercel] database connection attempt ${attempt} failed (${error.message}); retrying…`);
-    return new Promise(resolve => setTimeout(resolve, 1000)).then(() => connectWithRetry(attempt + 1));
-  });
-}
-
-module.exports = async (req, res) => {
+// Diagnostic bisect: report each import step so we can see exactly what crashes on Vercel.
+const report = [];
+const step = (name, fn) => {
   try {
-    await ensureDatabase();
+    const value = fn();
+    report.push(`${name}: OK`);
+    return value;
   } catch (error) {
-    console.error('[vercel] Database connection failed:', error.stack || error.message);
-    res.statusCode = 503;
-    res.end('ShopExpress is temporarily unavailable.');
-    return;
+    report.push(`${name}: FAIL — ${error && error.stack ? error.stack.split('\n')[0] : error}`);
+    return null;
   }
-  return app(req, res);
+};
+
+const mongoose = step('mongoose require', () => require('mongoose'));
+const sessionLib = step('connect-mongodb-session require', () => require('connect-mongodb-session'));
+const csrf = step('csurf require', () => require('csurf'));
+const bcryptjs = step('bcryptjs require', () => require('bcryptjs'));
+const ejs = step('ejs require', () => require('ejs'));
+const mailer = step('util/mailer require', () => require('../util/mailer'));
+const userModel = step('models/user require', () => require('../models/user'));
+const productModel = step('models/product require', () => require('../models/product'));
+const orderModel = step('models/order require', () => require('../models/order'));
+const app = step('app require', () => require('../app'));
+
+module.exports = (req, res) => {
+  res.statusCode = 200;
+  res.setHeader('content-type', 'text/plain');
+  res.end(report.join('\n'));
 };
