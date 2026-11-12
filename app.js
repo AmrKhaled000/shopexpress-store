@@ -202,9 +202,13 @@ app.use((error, req, res, next) => {
     });
   }
   console.error(error);
-  res.setHeader('x-debug-error', String((error && (error.stack || error.message)) || 'unknown').slice(0, 1500));
   if (res.headersSent) {
     return next(error);
+  }
+  if (String(req.query && req.query.debug) === '1') {
+    res.status(500);
+    res.setHeader('content-type', 'text/plain; charset=utf-8');
+    return res.end('DEBUG_ERROR:\n' + String((error && (error.stack || error.message)) || 'unknown'));
   }
   res.status(500).render('500', {
     pageTitle: 'Server Error',
