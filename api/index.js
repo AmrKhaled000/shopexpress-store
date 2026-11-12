@@ -31,6 +31,25 @@ module.exports = async (req, res) => {
     return;
   }
 
+  if (String(req.url || '').startsWith('/_probe/find')) {
+    try {
+      await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
+      const Product = require('../models/product');
+      const t0 = Date.now();
+      const [products, totalProducts] = await Promise.all([
+        Product.find().sort({ _id: -1 }).limit(8),
+        Product.countDocuments()
+      ]);
+      res.setHeader('content-type', 'text/plain');
+      res.end('find ok: ' + (Date.now() - t0) + 'ms, products=' + products.length + ', total=' + totalProducts);
+    } catch (error) {
+      res.statusCode = 500;
+      res.setHeader('content-type', 'text/plain');
+      res.end('find FAIL: ' + (error && (error.stack || error.message)));
+    }
+    return;
+  }
+
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
       const fs = require('fs');
