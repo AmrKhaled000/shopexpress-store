@@ -55,6 +55,23 @@ function connectWithRetry(attempt = 1) {
 }
 
 module.exports = async (req, res) => {
+  const url = req && req.url ? String(req.url) : '';
+
+  if (url.startsWith('/_probe')) {
+    const t0 = Date.now();
+    try {
+      await ensureDatabase();
+      res.statusCode = 200;
+      res.setHeader('content-type', 'text/plain');
+      res.end(`ensureDatabase ok, readyState=${mongoose.connection.readyState}, ms=${Date.now() - t0}`);
+    } catch (error) {
+      res.statusCode = 503;
+      res.setHeader('content-type', 'text/plain');
+      res.end(`ensureDatabase FAIL (${Date.now() - t0}ms): ${error && (error.name + ' — ' + error.message)}`);
+    }
+    return;
+  }
+
   try {
     await ensureDatabase();
   } catch (error) {
