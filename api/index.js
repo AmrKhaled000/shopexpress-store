@@ -33,26 +33,20 @@ module.exports = async (req, res) => {
 
   if (String(req.url || '').startsWith('/_error-debug')) {
     try {
-      await mongoose.connect(MONGODB_URI, MONGOOSE_OPTIONS);
-      const shop = require('../controllers/shop');
-      const result = await new Promise((resolve, reject) => {
-        const fakeReq = { query: {}, params: {}, user: null, sessionID: 'debug', session: {}, flash: () => [], body: {}, cookies: {}, headers: {} };
-        const fakeRes = {
-          render: (view, locals, cb) => {
-            resolve('render called view=' + view + ' prods=' + (locals && locals.prods && locals.prods.length));
-          },
-          setHeader: () => {},
-          set: () => {},
-          status: () => fakeRes,
-          redirect: (u) => { resolve('redirect ' + u); },
-          send: (b) => { resolve('send ' + String(b).slice(0, 300)); },
-          end: (b) => { resolve('end ' + String(b).slice(0, 300)); }
-        };
-        fakeRes.next = reject;
-        shop.getIndex(fakeReq, fakeRes, reject);
-      });
-      res.setHeader('content-type', 'text/plain');
-      res.end(String(result));
+      const fs = require('fs');
+      const cwd = process.cwd();
+      const listing = {};
+      for (const p of ['.', 'views', 'public', 'public/css', 'views/shop']) {
+        try {
+          const resolved = require('path').resolve(cwd, p);
+          const exists = fs.existsSync(resolved);
+          listing[p] = exists ? (fs.statSync(resolved).isDirectory() ? fs.readdirSync(resolved).slice(0, 40) : fs.statSync(resolved).size + 'b') : 'MISSING';
+        } catch (e) {
+          listing[p] = 'ERROR: ' + e.message;
+        }
+      }
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ cwd, listing }, null, 2));
     } catch (error) {
       res.statusCode = 500;
       res.setHeader('content-type', 'text/plain');
