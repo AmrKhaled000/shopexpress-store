@@ -15,32 +15,34 @@ function renderProductNotFound(res) {
   });
 }
 
-exports.getIndex = (req, res, next) => {
+exports.getIndex = async (req, res, next) => {
   const debug = String(req.query && req.query.debug) === '1';
 
-  Promise.all([
-    Product.find().sort({ _id: -1 }).limit(8),
-    Product.countDocuments()
-  ])
-    .then(([products, totalProducts]) => {
-      if (debug) {
-        return res.json({
-          ok: true,
-          totalProducts,
-          first: products[0] ? products[0].title : null,
-          prods: products.length
-        });
-      }
-      res.render('shop/index', {
-        prods: products,
+  try {
+    const firstPage = await Product.find().sort({ _id: -1 }).limit(8).exec();
+    const totalProducts = await Product.countDocuments();
+
+    if (debug) {
+      res.status(200).json({
+        ok: true,
         totalProducts,
-        pageTitle: 'Considered goods for everyday living',
-        pageDescription:
-          'ShopExpress is a small catalog of considered objects — lighting, audio, and everyday tools made to be kept.',
-        path: '/'
+        first: firstPage[0] ? firstPage[0].title : null,
+        prods: firstPage.length
       });
-    })
-    .catch(next);
+      return;
+    }
+
+    res.render('shop/index', {
+      prods: firstPage,
+      totalProducts,
+      pageTitle: 'Considered goods for everyday living',
+      pageDescription:
+        'ShopExpress is a small catalog of considered objects — lighting, audio, and everyday tools made to be kept.',
+      path: '/'
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.getProducts = (req, res, next) => {
