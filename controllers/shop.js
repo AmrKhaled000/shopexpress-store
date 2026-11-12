@@ -17,7 +17,17 @@ function renderProductNotFound(res) {
 
 exports.getIndex = async (req, res, next) => {
   try {
-    res.status(200).json({ probe: true, time: Date.now() });
+    const firstPage = await Product.find().sort({ _id: -1 }).limit(8);
+    const totalProducts = await Product.countDocuments();
+
+    res.render('shop/index', {
+      prods: firstPage,
+      totalProducts,
+      pageTitle: 'Considered goods for everyday living',
+      pageDescription:
+        'ShopExpress is a small catalog of considered objects — lighting, audio, and everyday tools made to be kept.',
+      path: '/'
+    });
   } catch (error) {
     console.error('INDEX_ROUTE_ERROR:', error && error.message ? error.message : String(error));
     console.error(error && error.stack ? error.stack : '(no stack)');
