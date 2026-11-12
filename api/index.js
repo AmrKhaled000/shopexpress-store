@@ -1,16 +1,5 @@
 'use strict';
 
-/**
- * Vercel serverless entry point.
- *
- * vercel.json routes all non-file requests to this function. Static files in
- * `public/` are served by Vercel's CDN (filesystem takes precedence over the
- * rewrite), so only application requests hit this handler.
- *
- * Serverless instances are reused for many invocations but must reconnect to
- * MongoDB after cold starts — the connection is cached on the global object.
- */
-
 const mongoose = require('mongoose');
 const app = require('../app');
 
@@ -36,7 +25,7 @@ async function ensureDatabase() {
       throw new Error('MONGODB_URI is required in this environment (see README).');
     }
     cached.promise = connectWithRetry().catch(error => {
-      cached.promise = null; // allow the next request to retry
+      cached.promise = null;
       throw error;
     });
   }
@@ -57,17 +46,33 @@ function connectWithRetry(attempt = 1) {
 module.exports = async (req, res) => {
   const url = req && req.url ? String(req.url) : '';
 
-  if (url.startsWith('/_probe')) {
-    const t0 = Date.now();
+  if (url.startsWith('/_probe/app')) {
     try {
+      await ensureDatabase();
+      const t = Date.now();
+      app(req, res);
+      setImmediate(() => {
+        // If app() dispatches synchronously, this fires before the response finishes.
+        res.setHeader('x-app-dispatched', `${Date.now() - t}ms`);
+      });
+    } catch (error) {
+      res.statusCode = 500;
+      res.end(`app dispatch threw: ${error && (error.name + ' — ' + error.message)}`);
+    }
+    return;
+  }
+
+  if (url.startsWith('/_probe')) {
+    try {
+      const t = Date.now();
       await ensureDatabase();
       res.statusCode = 200;
       res.setHeader('content-type', 'text/plain');
-      res.end(`ensureDatabase ok, readyState=${mongoose.connection.readyState}, ms=${Date.now() - t0}`);
+      res.end(`ensureDatabase ok, readyState=${mongoose.connection.readyState}, ms=${Date.now() - t}`);
     } catch (error) {
       res.statusCode = 503;
       res.setHeader('content-type', 'text/plain');
-      res.end(`ensureDatabase FAIL (${Date.now() - t0}ms): ${error && (error.name + ' — ' + error.message)}`);
+      res.end(`ensureDatabase FAIL (${Date.now() - t}ms): ${error && (error.name + ' — ' + error.message)}`);
     }
     return;
   }
