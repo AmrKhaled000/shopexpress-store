@@ -46,6 +46,27 @@ function connectWithRetry(attempt = 1) {
 module.exports = async (req, res) => {
   const url = req && req.url ? String(req.url) : '';
 
+  if (url.startsWith('/_probe/app/index-data')) {
+    try {
+      const Product = require('../models/product');
+      const t = Date.now();
+      const products = await Product.find().sort({ _id: -1 }).limit(3).exec();
+      const count = await Product.countDocuments();
+      res.statusCode = 200;
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({
+        ms: Date.now() - t,
+        count,
+        sample: products.map(p => ({ id: p._id.toString(), title: p.title, imageUrl: p.imageUrl }))
+      }, null, 2));
+    } catch (error) {
+      res.statusCode = 500;
+      res.setHeader('content-type', 'text/plain');
+      res.end('probe failed:\n' + (error && (error.stack || error.message)));
+    }
+    return;
+  }
+
   if (url.startsWith('/_probe/app')) {
     try {
       await ensureDatabase();
